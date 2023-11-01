@@ -466,7 +466,7 @@ int Pomi::nrTotalSpecii = 60000;
 void ordonareSoiuri(Pomi& p)
 {
 	for (int i = 0; i < p.nrSoiuri - 1; i++)
-		for (int j = 0; j < p.nrSoiuri; j++)
+		for (int j = i+1; j < p.nrSoiuri; j++)
 			if (p.soiuri[i] > p.soiuri[j])
 			{
 				string aux = p.soiuri[i];
@@ -561,7 +561,7 @@ void main()
 	Pomi p2(2.3, 1);
 	p2.afisarePomi();
 
-	int nrSoiuri = 3;
+	int nrSoiuri;
 	cout << "Introduceti numarul de soiuri: ";
 	cin >> nrSoiuri;
 	string* soiuri = new string[nrSoiuri];
@@ -576,6 +576,7 @@ void main()
 	Pomi p3("Par", 1.9, 1, nrSoiuri, soiuri);
 	p3.afisarePomi();
 	ordonareSoiuri(p3);
+	cout << "Obiectul p3, cu soiurile afisate in ordine alfabetica, arata astfel: " << endl;
 	p3.afisarePomi();
 
 	Pomi p4 = p2;
