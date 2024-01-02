@@ -1,66 +1,52 @@
 //Domeniul: agronomie
 #include <iostream>
 #include <fstream>
-#include <cstring>
 
 using namespace std;
 
-class Planta
-{
+class Planta {
 private:
 	char* categorieNumarCotiledoane;
 
 public:
-	Planta()
-	{
+	Planta() {
 		this->categorieNumarCotiledoane = new char[strlen("Dicotiledonata") + 1];
 		strcpy_s(this->categorieNumarCotiledoane, strlen("Dicotiledonata") + 1, "Dicotiledonata");
 	}
 
-	Planta(char* categorieNumarCotiledoane)
-	{
+	Planta(char* categorieNumarCotiledoane) {
 		this->categorieNumarCotiledoane = new char[strlen(categorieNumarCotiledoane) + 1];
 		strcpy_s(this->categorieNumarCotiledoane, strlen(categorieNumarCotiledoane) + 1, categorieNumarCotiledoane);
 	}
 
-	Planta(const Planta& p)
-	{
+	Planta(const Planta& p) {
 		this->categorieNumarCotiledoane = new char[strlen(p.categorieNumarCotiledoane) + 1];
 		strcpy_s(this->categorieNumarCotiledoane, strlen(p.categorieNumarCotiledoane) + 1, p.categorieNumarCotiledoane);
 	}
 
-	virtual ~Planta()
-	{
-		if (this->categorieNumarCotiledoane)
-		{
+	virtual ~Planta() {
+		if (this->categorieNumarCotiledoane) {
 			delete[]this->categorieNumarCotiledoane;
 		}
 	}
 
-	char* getCategorieNumarCotiledoane()
-	{
+	char* getCategorieNumarCotiledoane() {
 		return this->categorieNumarCotiledoane;
 	}
 
-	void setCategorieNumarCotiledoane(char* categorieNumarCotiledoane)
-	{
-		if (strlen(categorieNumarCotiledoane) > 1)
-		{
+	void setCategorieNumarCotiledoane(char* categorieNumarCotiledoane) {
+		if (strlen(categorieNumarCotiledoane) > 1) {
 			this->categorieNumarCotiledoane = new char[strlen(categorieNumarCotiledoane) + 1];
 			strcpy_s(this->categorieNumarCotiledoane, strlen(categorieNumarCotiledoane) + 1, categorieNumarCotiledoane);
 		}
 	}
 
-	Planta& operator=(const Planta& p)
-	{
-		if (this != &p)
-		{
-			if (this->categorieNumarCotiledoane)
-			{
+	Planta& operator=(const Planta& p) {
+		if (this != &p) {
+			if (this->categorieNumarCotiledoane) {
 				delete[]this->categorieNumarCotiledoane;
 			}
-			if (p.categorieNumarCotiledoane)
-			{
+			if (p.categorieNumarCotiledoane) {
 				this->categorieNumarCotiledoane = new char[strlen(p.categorieNumarCotiledoane) + 1];
 				strcpy_s(this->categorieNumarCotiledoane, strlen(p.categorieNumarCotiledoane), categorieNumarCotiledoane);
 			}
@@ -68,28 +54,41 @@ public:
 		return *this;
 	}
 
-	friend ostream& operator<<(ostream& out, const Planta& p)
-	{
-		if (strcmp(p.categorieNumarCotiledoane, "monocotiledonata") == 0)
-		{
+	friend ostream& operator<<(ostream& out, const Planta& p) {
+		if (strcmp(p.categorieNumarCotiledoane, "monocotiledonata") == 0) {
 			cout << "Planta este monocotiledonata.";
 		}
-		else
-		{
+		else {
 			cout << "Planta este dicotiledonata.";
 		}
+		return out;
 	}
 
-	virtual void afisarePlanta() = 0;
+	friend istream& operator>>(istream& in, Planta& p) {
+		cout << "Cereala este: (monocotiledonata/dicotiledonata) ";
+		char aux[100];
+		in >> aux;
+		p.categorieNumarCotiledoane = new char[strlen(aux) + 1];
+		strcpy_s(p.categorieNumarCotiledoane, strlen(aux) + 1, aux);
+		return in;
+	}
+
+	virtual void afiseazaPlanta() = 0;
 };
 
-class Planta2
-{
-	virtual void afisarePlanta2() = 0;
+class Flora {
+public:
+	virtual void citeste() = 0;
+	virtual void afiseaza() = 0;
+	virtual void scrieInFisierBinar(fstream& f) = 0;
+	virtual void citesteDinFisierBinar(fstream& f) = 0;
+	virtual Flora& operator=(const Flora& f) {
+		return *this;
+	}
+	virtual ~Flora() {}
 };
 
-class Cereala :public Planta
-{
+class Cereala :public Planta {
 private:
 	const int id;
 	char* nume;
@@ -100,31 +99,25 @@ private:
 	static float cantitateMaximaPesticide;
 
 public:
-	void afisarePlanta()
-	{
+	void afiseazaPlanta() {
 		cout << this->id << ". " << "Cereala " << this->nume << " " << this->soi << " are perioada de vegetatie de " << this->durataPerioadaVegetatie << " zile. ";
-		if (strcmp(this->getCategorieNumarCotiledoane(), "monocotiledonata") == 0)
-		{
+		if (strcmp(this->getCategorieNumarCotiledoane(), "monocotiledonata") == 0) {
 			cout << "Planta este monocotiledonata.";
 		}
-		else
-		{
+		else {
 			cout << "Planta este dicotiledonata.";
 		}
-		if (this->consumUman)
-		{
+		if (this->consumUman) {
 			cout << "Aceasta este destinata consumului uman. ";
 		}
-		else
-		{
+		else {
 			cout << "Aceasta este de tip furajer. ";
 		}
 		cout << "Temperatura optima de coacere pentru acest tip de cereale este in jur de " << this->temperatura << " grade Celsius. ";
 		cout << "Cantitatea maxima de pesticide admisa in Romania este, in medie, de " << this->cantitateMaximaPesticide << " kg/ha." << endl;
 	}
 
-	Cereala() :Planta(), id(1)
-	{
+	Cereala() :Planta(), id(1) {
 		this->nume = new char[strlen("Hrisca") + 1];
 		strcpy_s(this->nume, strlen("Hrisca") + 1, "Hrisca");
 		this->soi = "obisnuita";
@@ -133,8 +126,7 @@ public:
 		this->temperatura = 20;
 	}
 
-	Cereala(char* nume, string soi, bool consumUman) :Planta(), id(1)
-	{
+	Cereala(char* nume, string soi, bool consumUman) :Planta(), id(1) {
 		this->nume = new char[strlen(nume) + 1];
 		strcpy_s(this->nume, strlen(nume) + 1, nume);
 		this->soi = soi;
@@ -143,8 +135,7 @@ public:
 		this->temperatura = 20;
 	}
 
-	Cereala(int idNou, char* nume, string soi, int durataPerioadaVegetatie, bool consumUman, float temperatura, char* categorieNumarCotiledoane) :Planta(categorieNumarCotiledoane), id(idNou)
-	{
+	Cereala(int idNou, char* nume, string soi, int durataPerioadaVegetatie, bool consumUman, float temperatura, char* categorieNumarCotiledoane) :Planta(categorieNumarCotiledoane), id(idNou) {
 		this->nume = new char[strlen(nume) + 1];
 		strcpy_s(this->nume, strlen(nume) + 1, nume);
 		this->soi = soi;
@@ -153,8 +144,7 @@ public:
 		this->temperatura = temperatura;
 	}
 
-	Cereala(const Cereala& c) : id(c.id)
-	{
+	Cereala(const Cereala& c) : id(c.id) {
 		this->nume = new char[strlen(c.nume) + 1];
 		strcpy_s(this->nume, strlen(c.nume) + 1, c.nume);
 		this->soi = c.soi;
@@ -163,112 +153,87 @@ public:
 		this->temperatura = c.temperatura;
 	}
 
-	~Cereala()
-	{
+	~Cereala() {
 		if (this->nume != NULL)
 		{
 			delete[]this->nume;
 		}
 	}
 
-	const int getId() const
-	{
+	const int getId() const {
 		return this->id;
 	}
 
-	char* getNume()
-	{
+	char* getNume() {
 		return this->nume;
 	}
 
-	void setNume(char* nume)
-	{
-		if (this->nume != NULL)
-		{
+	void setNume(char* nume) {
+		if (this->nume != NULL) {
 			delete[]this->nume;
 		}
-		if (strlen(nume) + 1 > 1)
-		{
+		if (strlen(nume) + 1 > 1) {
 			this->nume = new char[strlen(nume) + 1];
 			strcpy_s(this->nume, strlen(nume) + 1, nume);
 		}
 	}
 
-	string getSoi()
-	{
+	string getSoi() {
 		return this->soi;
 	}
 
-	void setSoi(string soi)
-	{
-		if (strlen(nume) + 1 > 1)
-		{
+	void setSoi(string soi) {
+		if (strlen(nume) + 1 > 1) {
 			this->soi = soi;
 		}
 	}
 
-	int getDurataPerioadaVegetatie()
-	{
+	int getDurataPerioadaVegetatie() {
 		return this->durataPerioadaVegetatie;
 	}
 
-	void setDurataPerioadaVegetatie(int durataPerioadaVegetatie)
-	{
-		if (durataPerioadaVegetatie > 0)
-		{
+	void setDurataPerioadaVegetatie(int durataPerioadaVegetatie) {
+		if (durataPerioadaVegetatie > 0) {
 			this->durataPerioadaVegetatie = durataPerioadaVegetatie;
 		}
 	}
 
-	bool getConsumUman()
-	{
+	bool getConsumUman() {
 		return this->consumUman;
 	}
 
-	void setConsumUman(bool consumUman)
-	{
-		if (consumUman == 0)
-		{
+	void setConsumUman(bool consumUman) {
+		if (consumUman == 0) {
 			this->consumUman = 0;
 		}
-		else
-		{
-			this -> consumUman = 1;
+		else {
+			this->consumUman = 1;
 		}
 	}
 
-	float getTemperatura()
-	{
+	float getTemperatura() {
 		return this->temperatura;
 	}
 
-	void setTemperatura(float temperatura)
-	{
-		if (temperatura > 0)
-		{
+	void setTemperatura(float temperatura) {
+		if (temperatura > 0) {
 			this->temperatura = temperatura;
 		}
 	}
 
-	static float getCantitateMaximaPesticide()
-	{
+	static float getCantitateMaximaPesticide() {
 		return Cereala::cantitateMaximaPesticide;
 	}
 
-	static void setCantitateMaximaPesticide(float cantitate)
-	{
-		if (cantitate > 0)
-		{
+	static void setCantitateMaximaPesticide(float cantitate) {
+		if (cantitate > 0) {
 			Cereala::cantitateMaximaPesticide = cantitate;
 		}
 	}
 
-	Cereala operator=(const Cereala& c)
-	{
-		if (this != &c)
-		{
-			if (this->nume != NULL)
-			{
+	Cereala operator=(const Cereala& c) {
+		if (this != &c) {
+			if (this->nume != NULL) {
 				delete[]nume;
 			}
 			this->nume = new char[strlen(c.nume) + 1];
@@ -280,13 +245,11 @@ public:
 		return *this;
 	}
 
-	Cereala operator+=(const Cereala& c)
-	{
+	Cereala operator+=(const Cereala& c) {
 		char* aux = new char[strlen(this->nume) + strlen(c.nume) + 1];
 		strcpy_s(aux, strlen(this->nume) + 1, this->nume);
 		strcpy_s(aux + strlen(this->nume), strlen(c.nume) + 1, c.nume);
-		if (this->nume != NULL)
-		{
+		if (this->nume != NULL) {
 			delete[]this->nume;
 		}
 		this->nume = aux;
@@ -295,24 +258,20 @@ public:
 		return *this;
 	}
 
-	explicit operator int()
-	{
+	explicit operator int() {
 		return durataPerioadaVegetatie;
 	}
 
-	operator float()
-	{
+	operator float() {
 		return temperatura;
 	}
 
-	friend float temperaturaIncoltire(Cereala c);
+	friend float afiseazaTemperaturaIncoltire(Cereala c);
 	friend istream& operator>>(istream& in, Cereala& c);
 	friend ostream& operator<<(ostream& out, const Cereala& c);
 
-	friend ifstream& operator>>(ifstream& in_file, Cereala& c)
-	{
-		if (c.nume != NULL)
-		{
+	friend ifstream& operator>>(ifstream& in_file, Cereala& c) {
+		if (c.nume != NULL) {
 			delete[]c.nume;
 		}
 		char aux[100];
@@ -323,27 +282,22 @@ public:
 		in_file >> c.durataPerioadaVegetatie;
 		int b;
 		in_file >> b;
-		if (b)
-		{
+		if (b) {
 			c.consumUman = true;
 		}
-		else
-		{
+		else {
 			c.consumUman = false;
 		}
 		in_file >> c.temperatura;
 		return in_file;
 	}
 
-	friend ofstream& operator<<(ofstream& out_file, const Cereala& c)
-	{
+	friend ofstream& operator<<(ofstream& out_file, const Cereala& c) {
 		out_file << c.nume << " " << c.soi << " " << c.durataPerioadaVegetatie << " ";
-		if (c.consumUman)
-		{
+		if (c.consumUman) {
 			out_file << 1 << " ";
 		}
-		else
-		{
+		else {
 			out_file << 0 << " ";
 		}
 		out_file << c.temperatura << " ";
@@ -353,16 +307,14 @@ public:
 };
 float Cereala::cantitateMaximaPesticide = 60;
 
-float temperaturaIncoltire(Cereala c)
-{
+float afiseazaTemperaturaIncoltire(Cereala c) {
 	return c.temperatura - 15;
 }
 
 istream& operator>>(istream& in, Cereala& c)
 {
 	cout << "Numele cerealei este: ";
-	if (c.nume != NULL)
-	{
+	if (c.nume != NULL) {
 		delete[]c.nume;
 	}
 	char aux[100];
@@ -375,41 +327,37 @@ istream& operator>>(istream& in, Cereala& c)
 	in >> c.durataPerioadaVegetatie;
 	cout << "Cereala este destinata consumului uman? (0 - NU, 1 - DA) ";
 	in >> c.consumUman;
+	in >> static_cast<Planta&>(c);
 	cout << "Care este temperatura optima de coacere pentru acest tip de cereale? (grade Celsius) ";
 	in >> c.temperatura;
 	return in;
 }
 
-ostream& operator<<(ostream& out, const Cereala& c)
-{
+ostream& operator<<(ostream& out, const Cereala& c) {
 	out << c.id << ". " << "Cereala " << c.nume << " " << c.soi << " are perioada de vegetatie de " << c.durataPerioadaVegetatie << " zile. ";
-	if (c.consumUman)
-	{
+	if (c.consumUman) {
 		out << "Aceasta este destinata consumului uman. ";
 	}
-	else
-	{
+	else {
 		out << "Aceasta este de tip furajer. ";
 	}
-	out << getCategorieNumarCotiledoane();
+	out << static_cast<const Planta&>(c);
 	out << "Temperatura optima de coacere pentru acest tip de cereale este in jur de " << c.temperatura << " grade Celsius. ";
 	out << "Cantitatea maxima de pesticide admisa in Romania este, in medie, de " << c.cantitateMaximaPesticide << " kg/ha." << endl;
 	return out;
 }
 
 
-class CerealaDietetica :public Cereala
-{
+class CerealaDietetica :public Cereala {
 private:
 	char* continentOrigine;
 	float calorii;
 	int fibre;
 	bool areGluten;
-	
+
 public:
 
-	void afisarePlanta()
-	{
+	void afiseazaPlanta() {
 		cout << (Cereala)*this;
 		cout << "Cereala este originara din continentul " << this->continentOrigine << ". ";
 		cout << "Deoarece este o cereala indicata in diete, ne intereseaza numarul de calorii si cantitatea de fibre pe care le are. Aceasta are "
@@ -417,8 +365,7 @@ public:
 		cout << (this->areGluten ? "Cereala contine gluten." : "Cereala nu contine gluten.") << endl;
 	}
 
-	CerealaDietetica() :Cereala()
-	{
+	CerealaDietetica() :Cereala() {
 		this->continentOrigine = new char[strlen("Asia") + 1];
 		strcpy_s(this->continentOrigine, strlen("Asia") + 1, "Asia");
 		this->calorii = 343;
@@ -426,8 +373,7 @@ public:
 		this->areGluten = 0;
 	}
 
-	CerealaDietetica(int idNou, char* nume, string soi, int durataPerioadaVegetatie, bool consumUman, float temperatura, char* continentOrigine, float calorii, int fibre, bool areGluten, char* categorieNumarCotiledoane) :Cereala(idNou, nume, soi, durataPerioadaVegetatie, consumUman, temperatura, categorieNumarCotiledoane)
-	{
+	CerealaDietetica(int idNou, char* nume, string soi, int durataPerioadaVegetatie, bool consumUman, float temperatura, char* continentOrigine, float calorii, int fibre, bool areGluten, char* categorieNumarCotiledoane) :Cereala(idNou, nume, soi, durataPerioadaVegetatie, consumUman, temperatura, categorieNumarCotiledoane) {
 		this->continentOrigine = new char[strlen(continentOrigine) + 1];
 		strcpy_s(this->continentOrigine, strlen(continentOrigine) + 1, continentOrigine);
 		this->calorii = calorii;
@@ -435,10 +381,8 @@ public:
 		this->areGluten = areGluten;
 	}
 
-	CerealaDietetica(const CerealaDietetica& c) :Cereala(c)
-	{
-		if (continentOrigine)
-		{
+	CerealaDietetica(const CerealaDietetica& c) :Cereala(c) {
+		if (continentOrigine) {
 			delete[]this->continentOrigine;
 		}
 		this->continentOrigine = new char[strlen(c.continentOrigine) + 1];
@@ -448,81 +392,62 @@ public:
 		this->areGluten = c.areGluten;
 	}
 
-	~CerealaDietetica()
-	{
-		if (this->continentOrigine)
-		{
+	~CerealaDietetica() {
+		if (this->continentOrigine) {
 			delete[]this->continentOrigine;
 		}
 	}
 
-	char* getContinentOrigine()
-	{
+	char* getContinentOrigine() {
 		return this->continentOrigine;
 	}
 
-	void setContinentOrigine(char* continentOrigine)
-	{
-		if (strlen(continentOrigine) > 1)
-		{
-			strcpy_s(this->continentOrigine, strlen(continentOrigine)+1, continentOrigine);
+	void setContinentOrigine(char* continentOrigine) {
+		if (strlen(continentOrigine) > 1) {
+			strcpy_s(this->continentOrigine, strlen(continentOrigine) + 1, continentOrigine);
 		}
 	}
 
-	float getCalorii()
-	{
+	float getCalorii() {
 		return this->calorii;
 	}
 
-	void setCalorii(float calorii)
-	{
-		if (calorii > 0)
-		{
+	void setCalorii(float calorii) {
+		if (calorii > 0) {
 			this->calorii = calorii;
 		}
 	}
 
-	int getFibre()
-	{
+	int getFibre() {
 		return this->fibre;
 	}
 
-	void setFibre(int fibre)
-	{
-		if (fibre > 0)
-		{
+	void setFibre(int fibre) {
+		if (fibre > 0) {
 			this->fibre = fibre;
 		}
 	}
 
-	bool getAreGluten()
-	{
+	bool getAreGluten() {
 		return this->areGluten;
 	}
 
-	void setAreGluten(bool areGluten)
-	{
-		if (areGluten == 0)
-		{
+	void setAreGluten(bool areGluten) {
+		if (areGluten == 0) {
 			this->areGluten = 0;
 		}
-		else
-		{
+		else {
 			this->areGluten = 1;
 		}
 	}
 
-	CerealaDietetica& operator=(const CerealaDietetica& c)
-	{
-		if (this != &c)
-		{
+	CerealaDietetica& operator=(const CerealaDietetica& c) {
+		if (this != &c) {
 			Cereala::operator=(c);
-			if (this->continentOrigine)
-			{
+			if (this->continentOrigine) {
 				delete[]this->continentOrigine;
 			}
-			if (c.continentOrigine)
-			{
+			if (c.continentOrigine) {
 				this->continentOrigine = new char[strlen(c.continentOrigine) + 1];
 				strcpy_s(this->continentOrigine, strlen(c.continentOrigine) + 1, c.continentOrigine);
 			}
@@ -533,8 +458,7 @@ public:
 		return *this;
 	}
 
-	friend ostream& operator<<(ostream& out, const CerealaDietetica& c)
-	{
+	friend ostream& operator<<(ostream& out, const CerealaDietetica& c) {
 		out << (Cereala)c;
 		out << "Cereala este originara din continentul " << c.continentOrigine << ". ";
 		out << "Deoarece este o cereala indicata in diete, ne intereseaza numarul de calorii si cantitatea de fibre pe care le are. Aceasta are "
@@ -546,8 +470,7 @@ public:
 };
 
 
-class Leguma :public Planta2
-{
+class Leguma :public Flora {
 private:
 	const int id;
 	char* nume;
@@ -558,8 +481,26 @@ private:
 	static int nrTotalSpecii;
 
 public:
-	void afisarePlanta2()
-	{
+	void citeste() {
+		cout << "Numele legumei este: ";
+		if (this->nume != NULL) {
+			delete[]this->nume;
+		}
+		char aux[100];
+		cin >> aux;
+		this->nume = new char[strlen(aux) + 1];
+		strcpy_s(this->nume, strlen(aux) + 1, aux);
+		cout << "In functie de durata de vegetatie, aceasta este (anuala/bienala/perena): ";
+		cin >> this->categoriePlantaDurataVegetatie;
+		cout << "Este rezistenta la seceta? (0 - nu, 1 - da) ";
+		cin >> this->rezistentaSeceta;
+		cout << "PH-ul solului trebuie sa fie: ";
+		cin >> this->pHSol;
+		cout << "Pentru ca planta sa se poata dezvolta, este nevoie de o distanta de: ";
+		cin >> this->distantaIntrePlante;
+	}
+
+	void afiseaza() {
 		cout << this->id << ". " << "Leguma " << this->nume << " este o leguma " << this->categoriePlantaDurataVegetatie << ". " << (this->rezistentaSeceta
 			? "Aceasta este rezistenta la seceta. " : "Aceasta nu este rezistenta la seceta. ");
 		cout << "PH-ul solului in care este cultivata planta trebuie sa fie " << this->pHSol;
@@ -567,9 +508,8 @@ public:
 		cout << "In lume se estimeaza a fi undeva pe la " << this->nrTotalSpecii << " de soiuri de plante." << endl;
 	}
 
-	Leguma() : id(1)
-	{
-		this->nume = new char[strlen("Morvoc") + 1];
+	Leguma() : id(1) {
+		this->nume = new char[strlen("Morcov") + 1];
 		strcpy_s(this->nume, strlen("Morcov") + 1, "Morcov");
 		this->categoriePlantaDurataVegetatie = "bienala";
 		this->rezistentaSeceta = 1;
@@ -577,8 +517,7 @@ public:
 		this->distantaIntrePlante = 6;
 	}
 
-	Leguma(bool rezistentaSeceta) : id(1)
-	{
+	Leguma(bool rezistentaSeceta) : id(1) {
 		this->nume = new char[strlen("Morcov") + 1];
 		strcpy_s(this->nume, strlen("Morcov") + 1, "Morcov");
 		this->categoriePlantaDurataVegetatie = "bienala";
@@ -587,8 +526,7 @@ public:
 		this->distantaIntrePlante = 6;
 	}
 
-	Leguma(int idNou, char* nume, string categoriePlantaDurataVegetatie, bool rezistentaSeceta, float pHSol, int distantaIntrePlante) : id(idNou)
-	{
+	Leguma(int idNou, char* nume, string categoriePlantaDurataVegetatie, bool rezistentaSeceta, float pHSol, int distantaIntrePlante) : id(idNou) {
 		this->nume = new char[strlen(nume) + 1];
 		strcpy_s(this->nume, strlen(nume) + 1, nume);
 		this->categoriePlantaDurataVegetatie = categoriePlantaDurataVegetatie;
@@ -597,8 +535,7 @@ public:
 		this->distantaIntrePlante = distantaIntrePlante;
 	}
 
-	Leguma(const Leguma& l) : id(l.id)
-	{
+	Leguma(const Leguma& l) : id(l.id) {
 		this->nume = new char[strlen(l.nume) + 1];
 		strcpy_s(this->nume, strlen(l.nume) + 1, l.nume);
 		this->categoriePlantaDurataVegetatie = l.categoriePlantaDurataVegetatie;
@@ -607,121 +544,94 @@ public:
 		this->distantaIntrePlante = l.distantaIntrePlante;
 	}
 
-	~Leguma()
-	{
-		if (this->nume != NULL)
-		{
+	~Leguma() {
+		if (this->nume != NULL) {
 			delete[]this->nume;
 		}
 	}
 
-	const int getId() const
-	{
+	const int getId() const {
 		return this->id;
 	}
 
-	char* getNume()
-	{
+	char* getNume() {
 		return this->nume;
 	}
 
-	void setNume(char* nume)
-	{
-		if (this->nume != NULL)
-		{
+	void setNume(char* nume) {
+		if (this->nume != NULL) {
 			delete[]this->nume;
 		}
-		if (strlen(nume) + 1 > 1)
-		{
+		if (strlen(nume) + 1 > 1) {
 			this->nume = new char[strlen(nume) + 1];
 			strcpy_s(this->nume, strlen(nume) + 1, nume);
 		}
-		else
-		{
+		else {
 			this->nume = new char[strlen("FaraNume") + 1];
 			strcpy_s(this->nume, strlen("FaraNume") + 1, "FaraNume");
 		}
 	}
 
-	string getCategoriePlantaDurataVegetatie()
-	{
+	string getCategoriePlantaDurataVegetatie() {
 		return this->categoriePlantaDurataVegetatie;
 	}
 
-	void setCategoriePlantaDurataVegetatie(string categorie)
-	{
-		if (categorie.length() > 0)
-		{
+	void setCategoriePlantaDurataVegetatie(string categorie) {
+		if (categorie.length() > 0) {
 			this->categoriePlantaDurataVegetatie = categorie;
 		}
 	}
 
-	bool getRezistentaSeceta()
-	{
+	bool getRezistentaSeceta() {
 		return this->rezistentaSeceta;
 	}
 
-	void setRezistentaSeceta(bool rezistenta)
-	{
-		if (rezistentaSeceta == 0)
-		{
+	void setRezistentaSeceta(bool rezistenta) {
+		if (rezistentaSeceta == 0) {
 			this->rezistentaSeceta = 0;
 		}
-		else
-		{
+		else {
 			this->rezistentaSeceta = 1;
 		}
 	}
 
-	float getPHSol()
-	{
+	float getPHSol() {
 		return this->pHSol;
 	}
 
-	void setPHSol(float pHSol)
-	{
-		if (pHSol > 0 && pHSol < 15)
-		{
+	void setPHSol(float pHSol) {
+		if (pHSol > 0 && pHSol < 15) {
 			this->pHSol = pHSol;
 		}
-		else
-		{
+		else {
 			this->pHSol = 7;
 		}
 	}
 
-	int getDistantaIntrePlante()
-	{
+	int getDistantaIntrePlante() {
 		return this->distantaIntrePlante;
 	}
 
-	void setDistantaIntrePlante(int distanta)
-	{
-		if (distanta > 0)
-		{
+	void setDistantaIntrePlante(int distanta) {
+		if (distanta > 0) {
 			this->distantaIntrePlante = distanta;
 		}
 	}
 
-	static int getNrTotalSpecii()
-	{
+	static int getNrTotalSpecii() {
 		return Leguma::nrTotalSpecii;
 	}
 
-	static void setNrTotalSpecii(int nrTotalSpecii)
-	{
-		if (nrTotalSpecii > 0)
-		{
+	static void setNrTotalSpecii(int nrTotalSpecii) {
+		if (nrTotalSpecii > 0) {
 			Leguma::nrTotalSpecii = nrTotalSpecii;
 		}
 	}
 
-	Leguma operator=(const Leguma& l)
-	{
-		if (this != &l)
-		{
-			if (this->nume != NULL)
-			{
+	Leguma& operator=(const Flora& f) {
+		const Leguma& l = dynamic_cast<const Leguma&>(f);
+		if (this != &l) {
+			if (this->nume != NULL) {
 				delete[]nume;
 			}
 			this->nume = new char[strlen(l.nume) + 1];
@@ -734,29 +644,39 @@ public:
 		return *this;
 	}
 
-	bool operator<(const Leguma& l) const
-	{
+	Leguma& operator=(const Leguma& l) {
+		if (this != &l) {
+			if (this->nume != NULL) {
+				delete[]nume;
+			}
+			this->nume = new char[strlen(l.nume) + 1];
+			strcpy_s(this->nume, strlen(l.nume) + 1, l.nume);
+			this->categoriePlantaDurataVegetatie = l.categoriePlantaDurataVegetatie;
+			this->rezistentaSeceta = l.rezistentaSeceta;
+			this->pHSol = l.pHSol;
+			this->distantaIntrePlante = l.distantaIntrePlante;
+		}
+		return *this;
+	}
+
+	bool operator<(const Leguma& l) const {
 		return this->distantaIntrePlante < l.distantaIntrePlante;
 	}
 
-	Leguma operator++()
-	{
+	Leguma operator++() {
 		this->distantaIntrePlante += 5;
 		return *this;
 	}
 
-	Leguma operator++(int)
-	{
+	Leguma operator++(int) {
 		Leguma copie = *this;
 		this->distantaIntrePlante += 5;
 		return copie;
 	}
 
-	friend istream& operator>>(istream& in, Leguma& l)
-	{
+	friend istream& operator>>(istream& in, Leguma& l) {
 		cout << "Numele legumei este: ";
-		if (l.nume != NULL)
-		{
+		if (l.nume != NULL) {
 			delete[]l.nume;
 		}
 		char aux[100];
@@ -776,10 +696,8 @@ public:
 
 	friend ostream& operator<<(ostream& out, const Leguma& l);
 
-	friend ifstream& operator>>(ifstream& in_file, Leguma& l)
-	{
-		if (l.nume != NULL)
-		{
+	friend ifstream& operator>>(ifstream& in_file, Leguma& l) {
+		if (l.nume != NULL) {
 			delete[]l.nume;
 		}
 		char aux[100];
@@ -793,8 +711,7 @@ public:
 		return in_file;
 	}
 
-	friend ofstream& operator<<(ofstream& out_file, const Leguma& l)
-	{
+	friend ofstream& operator<<(ofstream& out_file, const Leguma& l) {
 		out_file << l.nume << " " << l.categoriePlantaDurataVegetatie << " " << (l.rezistentaSeceta
 			? "1 " : "0 ");
 		out_file << l.pHSol << " ";
@@ -803,50 +720,45 @@ public:
 		return out_file;
 	}
 
-	void scriereInFisierBinar(fstream& f)
-	{
+	void scrieInFisierBinar(fstream& f) {
 		int lungime = strlen(this->nume) + 1;
 		f.write((char*)&lungime, sizeof(int));
-		for (int j = 0; j < lungime; j++)
-		{
+		for (int j = 0; j < lungime; j++) {
 			f.write((char*)&this->nume[j], sizeof(char));
 		}
 		lungime = this->categoriePlantaDurataVegetatie.length() + 1;
-		char* aux2 = new char[lungime];
-		strcpy_s(aux2, lungime, this->categoriePlantaDurataVegetatie.c_str());
+		char* aux = new char[lungime];
+		strcpy_s(aux, lungime, this->categoriePlantaDurataVegetatie.c_str());
 		f.write((char*)&lungime, sizeof(int));
-		for (int j = 0; j < lungime; j++)
-		{
-			f.write((char*)&aux2[j], sizeof(char));
+		for (int j = 0; j < lungime; j++) {
+			f.write((char*)&aux[j], sizeof(char));
 		}
-		if (aux2)
-		{
-			delete[]aux2;
+		if (aux) {
+			delete[]aux;
 		}
 		f.write((char*)&this->rezistentaSeceta, sizeof(bool));
 		f.write((char*)&this->pHSol, sizeof(float));
 		f.write((char*)&this->distantaIntrePlante, sizeof(int));
 	}
 
-	void citireDinFisierBinar(fstream& f)
-	{
+	void citesteDinFisierBinar(fstream& f) {
 		int lungime;
 		f.read((char*)&lungime, sizeof(int));
-		for (int j = 0; j < lungime; j++)
-		{
-			f.read((char*)&this->nume[j], sizeof(char));
+		int i;
+		this->nume = new char[lungime + 1];
+		for (i = 0; i < lungime; i++) {
+			f.read((char*)&this->nume[i], sizeof(char));
 		}
-		lungime = 0;
+		this->nume[i] = '\0';
 		f.read((char*)&lungime, sizeof(int));
-		char* aux2 = new char[lungime];
-		for (int j = 0; j < lungime; j++)
-		{
-			f.read((char*)&aux2[j], sizeof(char));
+		char* aux = new char[lungime + 1];
+		for (i = 0; i < lungime; i++) {
+			f.read((char*)&aux[i], sizeof(char));
 		}
-		this->categoriePlantaDurataVegetatie = aux2;
-		if (aux2)
-		{
-			delete[]aux2;
+		aux[i] = '\0';
+		this->categoriePlantaDurataVegetatie = aux;
+		if (aux) {
+			delete[]aux;
 		}
 		f.read((char*)&this->rezistentaSeceta, sizeof(bool));
 		f.read((char*)&this->pHSol, sizeof(float));
@@ -856,8 +768,7 @@ public:
 };
 int Leguma::nrTotalSpecii = 10000;
 
-ostream& operator<<(ostream& out, const Leguma& l)
-{
+ostream& operator<<(ostream& out, const Leguma& l) {
 	out << l.id << ". " << "Leguma " << l.nume << " este o leguma " << l.categoriePlantaDurataVegetatie << ". " << (l.rezistentaSeceta
 		? "Aceasta este rezistenta la seceta. " : "Aceasta nu este rezistenta la seceta. ");
 	out << "PH-ul solului in care este cultivata planta trebuie sa fie " << l.pHSol;
@@ -867,8 +778,7 @@ ostream& operator<<(ostream& out, const Leguma& l)
 }
 
 
-class LegumaRadacinoasa :public Leguma
-{
+class LegumaRadacinoasa :public Leguma {
 private:
 	char* anotimpCultivare;
 	string culoare;
@@ -877,17 +787,28 @@ private:
 
 public:
 
-	void afisarePlanta2()
-	{
-		cout << (Leguma)*this;
+	void citeste() {
+		Leguma::citeste();
+		cout << "Anotimpul in care se cultiva este: ";
+		cin >> this->anotimpCultivare;
+		cout << "Culoarea legumei este: ";
+		cin >> this->culoare;
+		cout << "Adancimea de cultivare este: ";
+		cin >> this->adancimeCultivare;
+		cout << "Greutatea medie a legumei este: ";
+		cin >> this->greutateMedie;
+	}
+
+	void afiseaza() {
+		Leguma::afiseaza();
 		cout << "Leguma se cultiva in anotimpul " << this->anotimpCultivare;
 		cout << ". Leguma are culoarea " << this->culoare;
 		cout << ". Adancimea optima de cultivare este de " << this->adancimeCultivare << " cm. ";
 		cout << "In medie, aceasta leguma are greutatea de " << this->greutateMedie << " grame." << endl;
 	}
 
-	LegumaRadacinoasa() :Leguma(0)
-	{
+
+	LegumaRadacinoasa() :Leguma(0) {
 		this->anotimpCultivare = new char[strlen("primavara") + 1];
 		strcpy_s(this->anotimpCultivare, strlen("primavara") + 1, "primavara");
 		this->culoare = "portocalie";
@@ -895,8 +816,7 @@ public:
 		this->greutateMedie = 10;
 	}
 
-	LegumaRadacinoasa(int idNou, char* nume, string categoriePlantaDurataVegetatie, bool rezistentaSeceta, float pHSol, int distantaIntrePlante, char* anotimpCultivare, string culoare, int adancimeCultivare, float greutateMedie) :Leguma(idNou, nume, categoriePlantaDurataVegetatie, rezistentaSeceta, pHSol, distantaIntrePlante)
-	{
+	LegumaRadacinoasa(int idNou, char* nume, string categoriePlantaDurataVegetatie, bool rezistentaSeceta, float pHSol, int distantaIntrePlante, char* anotimpCultivare, string culoare, int adancimeCultivare, float greutateMedie) :Leguma(idNou, nume, categoriePlantaDurataVegetatie, rezistentaSeceta, pHSol, distantaIntrePlante) {
 		this->anotimpCultivare = new char[strlen(anotimpCultivare) + 1];
 		strcpy_s(this->anotimpCultivare, strlen(anotimpCultivare) + 1, anotimpCultivare);
 		this->culoare = culoare;
@@ -904,8 +824,7 @@ public:
 		this->greutateMedie = greutateMedie;
 	}
 
-	LegumaRadacinoasa(const LegumaRadacinoasa& l) :Leguma(l)
-	{
+	LegumaRadacinoasa(const LegumaRadacinoasa& l) :Leguma(l) {
 		this->anotimpCultivare = new char[strlen(l.anotimpCultivare) + 1];
 		strcpy_s(this->anotimpCultivare, strlen(l.anotimpCultivare) + 1, l.anotimpCultivare);
 		this->culoare = l.culoare;
@@ -913,73 +832,57 @@ public:
 		this->greutateMedie = l.greutateMedie;
 	}
 
-	~LegumaRadacinoasa()
-	{
-		if (this->anotimpCultivare)
-		{
+	~LegumaRadacinoasa() {
+		if (this->anotimpCultivare) {
 			delete[]this->anotimpCultivare;
 		}
 	}
 
-	char* getAnotimpCultivare()
-	{
+	char* getAnotimpCultivare() {
 		return this->anotimpCultivare;
 	}
-	
-	void setAnotimpCultivare(char* anotimpCultivare)
-	{
-		if (strlen(anotimpCultivare) > 1)
-		{
-			strcpy_s(this->anotimpCultivare, strlen(anotimpCultivare)+1, anotimpCultivare);
+
+	void setAnotimpCultivare(char* anotimpCultivare) {
+		if (strlen(anotimpCultivare) > 1) {
+			strcpy_s(this->anotimpCultivare, strlen(anotimpCultivare) + 1, anotimpCultivare);
 		}
 	}
 
-	string getCuloare()
-	{
+	string getCuloare() {
 		return this->culoare;
 	}
 
-	void setCuloare(string culoare)
-	{
-		if (culoare.length() > 1)
-		{
+	void setCuloare(string culoare) {
+		if (culoare.length() > 1) {
 			this->culoare = culoare;
 		}
 	}
 
-	int getAdancimeCultivare()
-	{
+	int getAdancimeCultivare() {
 		return this->adancimeCultivare;
 	}
 
-	void setAdancimeCultivare(int adancimeCultivare)
-	{
-		if (adancimeCultivare > 0)
-		{
+	void setAdancimeCultivare(int adancimeCultivare) {
+		if (adancimeCultivare > 0) {
 			this->adancimeCultivare = adancimeCultivare;
 		}
 	}
 
-	float getGreutateMedie()
-	{
+	float getGreutateMedie() {
 		return this->greutateMedie;
 	}
 
-	void setGreutateMedie(float greutateMedie)
-	{
-		if (greutateMedie > 0)
-		{
+	void setGreutateMedie(float greutateMedie) {
+		if (greutateMedie > 0) {
 			this->greutateMedie = greutateMedie;
 		}
 	}
 
-	LegumaRadacinoasa& operator=(const LegumaRadacinoasa& l)
-	{
-		if (this != &l)
-		{
-			Leguma::operator=(l);
-			if (anotimpCultivare)
-			{
+	LegumaRadacinoasa& operator=(const Flora& f) {
+		const LegumaRadacinoasa& l = dynamic_cast<const LegumaRadacinoasa&>(f);
+		if (this != &l) {
+			Leguma::operator=(f);
+			if (anotimpCultivare) {
 				delete[]anotimpCultivare;
 			}
 			this->anotimpCultivare = new char[strlen(l.anotimpCultivare) + 1];
@@ -991,8 +894,22 @@ public:
 		return *this;
 	}
 
-	friend ostream& operator<<(ostream& out, const LegumaRadacinoasa& l)
-	{
+	LegumaRadacinoasa& operator=(const LegumaRadacinoasa& l) {
+		if (this != &l) {
+			Leguma::operator=(l);
+			if (anotimpCultivare) {
+				delete[]anotimpCultivare;
+			}
+			this->anotimpCultivare = new char[strlen(l.anotimpCultivare) + 1];
+			strcpy_s(this->anotimpCultivare, strlen(l.anotimpCultivare) + 1, l.anotimpCultivare);
+			this->culoare = l.culoare;
+			this->adancimeCultivare = l.adancimeCultivare;
+			this->greutateMedie = l.greutateMedie;
+		}
+		return *this;
+	}
+
+	friend ostream& operator<<(ostream& out, const LegumaRadacinoasa& l) {
 		out << (Leguma)l;
 		out << "Leguma se cultiva in anotimpul " << l.anotimpCultivare;
 		out << ". Leguma are culoarea " << l.culoare;
@@ -1001,312 +918,436 @@ public:
 		return out;
 	}
 
-	
+	friend istream& operator>>(istream& in, LegumaRadacinoasa& l) {
+		in >> static_cast<Leguma&>(l);
+		cout << "Anotimpul in care se cultiva este: ";
+		in >> l.anotimpCultivare;
+		cout << "Culoarea legumei este: ";
+		in >> l.culoare;
+		cout << "Adancimea de cultivare este: ";
+		in >> l.adancimeCultivare;
+		cout << "Greutatea medie a legumei este: ";
+		in >> l.greutateMedie;
+		return in;
+	}
+
+
+	void scrieInFisierBinar(fstream& f) {
+		Leguma::scrieInFisierBinar(f);
+		int lungime = strlen(this->anotimpCultivare) + 1;
+		f.write((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++) {
+			f.write((char*)&this->anotimpCultivare[i], sizeof(char));
+		}
+		lungime = this->culoare.length() + 1;
+		char* aux = new char[lungime];
+		strcpy_s(aux, lungime, this->culoare.c_str());
+		f.write((char*)&lungime, sizeof(int));
+		for (int i = 0; i < lungime; i++) {
+			f.write((char*)&aux[i], sizeof(char));
+		}
+		if (aux) {
+			delete[]aux;
+		}
+		f.write((char*)&this->adancimeCultivare, sizeof(int));
+		f.write((char*)&this->greutateMedie, sizeof(float));
+	}
+
+	void citesteDinFisierBinar(fstream& f) {
+		Leguma::citesteDinFisierBinar(f);
+		int lungime;
+		f.read((char*)&lungime, sizeof(int));
+		int i;
+		this->anotimpCultivare = new char[lungime + 1];
+		for (i = 0; i < lungime; i++) {
+			f.read((char*)&this->anotimpCultivare[i], sizeof(char));
+		}
+		this->anotimpCultivare[i] = '\0';
+		f.read((char*)&lungime, sizeof(int));
+		char* aux = new char[lungime + 1];
+		for (i = 0; i < lungime; i++) {
+			f.read((char*)&aux[i], sizeof(char));
+		}
+		aux[i] = '\0';
+		this->culoare = aux;
+		if (aux) {
+			delete[]aux;
+		}
+		f.read((char*)&this->adancimeCultivare, sizeof(int));
+		f.read((char*)&this->greutateMedie, sizeof(float));
+	}
 
 };
 
 
-class Gradina
-{
+class Gradina {
 private:
 	const int idGradina;
 	string numeProprietar;
 	float latimeGradina;
 	float lungimeGradina;
 	int nrLegumeGradina;
-	Leguma* legume;
+	string* tipLeguma;
+	Flora** legume;
 	static int nrTotalGradini;
 
 public:
-	Gradina() :idGradina(1)
-	{
+	Gradina() :idGradina(1) {
 		this->numeProprietar = "Fara Proprietar";
 		this->latimeGradina = 0;
 		this->lungimeGradina = 0;
-		this->nrLegumeGradina = 1;
-		this->legume = new Leguma[this->nrLegumeGradina];
-		legume[0] = "Rosie";
+		this->nrLegumeGradina = 3;
+		this->tipLeguma = new string[this->nrLegumeGradina];
+		this->legume = new Flora * [this->nrLegumeGradina];
+		this->legume[0] = new Leguma();
+		this->tipLeguma[0] = "Leguma";
+		this->legume[1] = new LegumaRadacinoasa();
+		this->tipLeguma[1] = "LegumaRadacinoasa";
+		this->legume[2] = new Leguma();
+		this->tipLeguma[2] = "Leguma";
 	}
 
-	Gradina(int idGradinaNou, string numeProprietar, float latimeGradina, float lungimeGradina, int nrLegumeGradina, Leguma* legume) :idGradina(idGradinaNou)
-	{
-		if (numeProprietar.length() > 1)
-		{
+	Gradina(int idGradinaNou, string numeProprietar, float latimeGradina, float lungimeGradina, int nrLegumeGradina, string* tipLeguma, Flora** legume) :idGradina(idGradinaNou) {
+		if (numeProprietar.length() > 1) {
 			this->numeProprietar = numeProprietar;
 		}
-		else
-		{
+		else {
 			this->numeProprietar = "Fara proprietar";
 		}
-		if (latimeGradina > 0)
-		{
+		if (latimeGradina > 0) {
 			this->latimeGradina = latimeGradina;
 		}
-		else
-		{
+		else {
 			this->latimeGradina = 0;
 		}
-		if (lungimeGradina > 0)
-		{
+		if (lungimeGradina > 0) {
 			this->lungimeGradina = lungimeGradina;
 		}
-		else
-		{
+		else {
 			this->lungimeGradina = 0;
 		}
-		if (nrLegumeGradina > 0)
-		{
+		if (nrLegumeGradina > 0) {
 			this->nrLegumeGradina = nrLegumeGradina;
-			this->legume = new Leguma[this->nrLegumeGradina];
-			for (int i = 0; i < this->nrLegumeGradina; i++)
-			{
-				this->legume[i] = legume[i];
+			this->tipLeguma = new string[this->nrLegumeGradina];
+			this->legume = new Flora * [this->nrLegumeGradina];
+			for (int i = 0; i < this->nrLegumeGradina; i++) {
+				this->tipLeguma[i] = tipLeguma[i];
+				if (this->tipLeguma[i] == "Leguma") {
+					this->legume[i] = new Leguma();
+				}
+				else {
+					this->legume[i] = new LegumaRadacinoasa();
+				}
+				*(this->legume[i]) = *(legume[i]);
 			}
 		}
-		else
-		{
+		else {
 			this->nrLegumeGradina = 0;
 			this->legume = NULL;
 		}
 	}
 
-	Gradina(const Gradina& g) :idGradina(g.idGradina)
-	{
+	Gradina(const Gradina& g) :idGradina(g.idGradina) {
 		this->numeProprietar = g.numeProprietar;
 		this->latimeGradina = g.latimeGradina;
 		this->lungimeGradina = g.lungimeGradina;
 		this->nrLegumeGradina = g.nrLegumeGradina;
-		this->legume = new Leguma[this->nrLegumeGradina];
-		for (int i = 0; i < this->nrLegumeGradina; i++)
-		{
-			this->legume[i] = g.legume[i];
+		this->tipLeguma = new string[this->nrLegumeGradina];
+		this->legume = new Flora * [this->nrLegumeGradina];
+		for (int i = 0; i < this->nrLegumeGradina; i++) {
+			if (this->tipLeguma[i] == "Leguma") {
+				this->legume[i] = new Leguma();
+			}
+			else {
+				this->legume[i] = new LegumaRadacinoasa();
+
+			}
+			*(this->legume[i]) = *(g.legume[i]);
 		}
 	}
 
-	~Gradina()
-	{
-		if (this->legume != NULL)
-		{
+	~Gradina() {
+		for (int i = 0; i < this->nrLegumeGradina; i++) {
+			if (this->legume[i]) {
+				delete[]legume[i];
+			}
+		}
+		if (this->legume) {
 			delete[]this->legume;
 		}
+		if (this->tipLeguma) {
+			delete[]tipLeguma;
+		}
 	}
 
-	const int getIdGradina() const
-	{
+	const int getIdGradina() const {
 		return this->idGradina;
 	}
 
-	string getNumeProprietar() const
-	{
+	string getNumeProprietar() const {
 		return this->numeProprietar;
 	}
 
-	void setNumeProprietar(string numeProprietar)
-	{
-		if (numeProprietar.length() > 1)
-		{
+	void setNumeProprietar(string numeProprietar) {
+		if (numeProprietar.length() > 1) {
 			this->numeProprietar = numeProprietar;
 		}
 	}
 
-	float getLatimeGradina() const
-	{
+	float getLatimeGradina() const {
 		return this->latimeGradina;
 	}
 
-	void setLatimeGradina(float latimeGradina)
-	{
-		if (latimeGradina > 0)
-		{
+	void setLatimeGradina(float latimeGradina) {
+		if (latimeGradina > 0) {
 			this->latimeGradina = latimeGradina;
 		}
 	}
 
-	float getLungimeGradina() const
-	{
+	float getLungimeGradina() const {
 		return this->lungimeGradina;
 	}
 
-	void setLungimeGradina(float lungimeGradina)
-	{
-		if (lungimeGradina > 0)
-		{
+	void setLungimeGradina(float lungimeGradina) {
+		if (lungimeGradina > 0) {
 			this->lungimeGradina = lungimeGradina;
 		}
 	}
 
-	int getNrLegumeGradina() const
-	{
+	int getNrLegumeGradina() const {
 		return this->nrLegumeGradina;
 	}
 
-	Leguma* getLegume() const
-	{
+	string* getTipLeguma() const {
+		return this->tipLeguma;
+	}
+
+	Flora** getLegumeGradina() {
 		return this->legume;
 	}
 
-	void setLegumeGradina(int nrLegumeGradina, Leguma* legume)
-	{
-		if (nrLegumeGradina > 0)
-		{
-			this->nrLegumeGradina = nrLegumeGradina;
-			if (this->legume != NULL)
-			{
+	void setLegumeGradina(int nrLegumeGradina, Flora** legume, string* tipLeguma) {
+		if (nrLegumeGradina > 0) {
+			for (int i = 0; i < this->nrLegumeGradina; i++) {
+				if (this->legume[i]) {
+					delete[]this->legume[i];
+				}
+			}
+			if (this->legume) {
 				delete[]this->legume;
 			}
-			this->legume = new Leguma[this->nrLegumeGradina];
-			for (int i = 0; i < nrLegumeGradina; i++)
-			{
-				this->legume[i] = legume[i];
+			if (this->tipLeguma) {
+				delete[]this->tipLeguma;
+			}
+			this->nrLegumeGradina = nrLegumeGradina;
+			this->tipLeguma = new string[this->nrLegumeGradina];
+			this->legume = new Flora * [this->nrLegumeGradina];
+			for (int i = 0; i < nrLegumeGradina; i++) {
+				this->tipLeguma[i] = tipLeguma[i];
+				if (this->tipLeguma[i] == "Leguma") {
+					this->legume[i] = new Leguma();
+				}
+				else {
+					this->legume[i] = new LegumaRadacinoasa();
+
+				}
+				*(this->legume[i]) = *(legume[i]);
 			}
 		}
 	}
 
-	static int getNrTotalGradini()
-	{
+	static int getNrTotalGradini() {
 		return Gradina::nrTotalGradini;
 	}
 
-	static void setNrTotalGradini(int nrTotalGradini)
-	{
-		if (nrTotalGradini > 0)
-		{
+	static void setNrTotalGradini(int nrTotalGradini) {
+		if (nrTotalGradini > 0) {
 			Gradina::nrTotalGradini = nrTotalGradini;
 		}
 	}
 
-	Gradina& operator=(const Gradina& g)
-	{
-		if (this != &g)
-		{
+	Gradina& operator=(const Gradina& g) {
+		if (this != &g) {
 			this->numeProprietar = g.numeProprietar;
 			this->latimeGradina = g.latimeGradina;
 			this->lungimeGradina = g.lungimeGradina;
 			this->nrLegumeGradina = g.nrLegumeGradina;
-			if (this->legume != NULL)
-			{
+			for (int i = 0; i < this->nrLegumeGradina; i++) {
+				if (this->legume[i]) {
+					delete[]legume[i];
+				}
+			}
+			if (this->legume) {
 				delete[]this->legume;
 			}
 
-			if (this->nrLegumeGradina != 0)
-			{
-				this->legume = new Leguma[this->nrLegumeGradina];
-				for (int i = 0; i < this->nrLegumeGradina; i++)
-				{
-					this->legume[i] = g.legume[i];
+			if (this->tipLeguma) {
+				delete[]tipLeguma;
+			}
+
+			if (this->nrLegumeGradina != 0) {
+				this->tipLeguma = new string[this->nrLegumeGradina];
+				this->legume = new Flora * [this->nrLegumeGradina];
+				for (int i = 0; i < this->nrLegumeGradina; i++) {
+					this->tipLeguma[i] = g.tipLeguma[i];
+					if (this->tipLeguma[i] == "Leguma") {
+						this->legume[i] = new Leguma();
+					}
+					else {
+						this->legume[i] = new LegumaRadacinoasa();
+
+					}
+					*(this->legume[i]) = *(g.legume[i]);
 				}
 			}
-			else
-			{
+			else {
 				this->legume = NULL;
+				this->tipLeguma = NULL;
 			}
 		}
 		return *this;
 	}
 
-	friend istream& operator>>(istream& in, Gradina& g)
-	{
+	friend istream& operator>>(istream& in, Gradina& g) {
 		cout << "Numele proprietarului este: ";
 		char aux[100];
-		in.getline(aux, 15);
+		in.getline(aux, 100);
 		g.numeProprietar = string(aux);
 		cout << "Latimea gradinii este: ";
 		in >> g.latimeGradina;
 		cout << "Lungimea gradinii este: ";
 		in >> g.lungimeGradina;
-		cout << "Numarul de tipuri de legume din gradina este: ";
+		cout << "Numarul de legume din gradina este: ";
 		in >> g.nrLegumeGradina;
-		if (g.legume != NULL)
-		{
+		if (g.legume != NULL) {
 			delete[]g.legume;
 		}
-		if (g.nrLegumeGradina > 0)
-		{
-			Leguma* legume = new Leguma[g.nrLegumeGradina];
-			for (int i = 0; i < g.nrLegumeGradina; i++)
-			{
-				cout << "Leguma " << i + 1 << ": ";
-				cin >> g.legume[i];
+		if (g.nrLegumeGradina > 0) {
+			string* tipLeguma = new string[g.nrLegumeGradina];
+			Flora** legume = new Flora * [g.nrLegumeGradina];
+			string tip;
+			for (int i = 0; i < g.nrLegumeGradina; i++) {
+				cout << "Tipul legumei " << i + 1 << ": (Leguma / LegumaRadacinoasa) ";
+				in >> tip;
+				if (tip != "Leguma" && tip != "LegumaRadacinoasa") {
+					cout << "Ati introdus gresit tipul. Introduceti din nou. ";
+					i--;
+				}
+				else {
+					tipLeguma[i] = tip;
+					if (tipLeguma[i] == "Leguma") {
+						g.legume[i] = new Leguma();
+						cout << "Leguma " << i + 1 << ": ";
+						g.legume[i]->citeste();
+					}
+					else {
+						if (tip == "LegumaRadacinoasa") {
+							g.legume[i] = new LegumaRadacinoasa();
+							cout << "Leguma (radacinoasa) " << i + 1 << ": ";
+							g.legume[i]->citeste();
+						}
+					}
+				}
 			}
 		}
-		else
-		{
+		else {
 			g.legume = NULL;
+			g.tipLeguma = NULL;
 		}
 		return in;
 	}
 
-	friend ostream& operator<<(ostream& out, Gradina& g)
-	{
+
+	friend ostream& operator<<(ostream& out, Gradina& g) {
 		out << g.idGradina << ". Proprietarul gradinii este " << g.numeProprietar << ". Gradina are latimea de " << g.latimeGradina << " m si lungimea de "
 			<< g.lungimeGradina << " m. ";
-		if (g.nrLegumeGradina != 0)
-		{
+		if (g.nrLegumeGradina != 0) {
 			out << "In gradina sunt " << g.nrLegumeGradina << " tipuri de legume. Acestea sunt: " << endl;
-			for (int i = 0; i < g.nrLegumeGradina; i++)
-			{
-				out << g.legume[i];
+			for (int i = 0; i < g.nrLegumeGradina; i++) {
+				g.legume[i]->afiseaza();
 			}
 		}
-		else
-		{
-			out << "In gradina sunt nu sunt legume. ";
+		else {
+			out << "In gradina nu sunt legume. ";
 		}
 		out << "In total, in judetul Ilfov sunt " << Gradina::nrTotalGradini << " gradini.";
 		out << endl;
 		return out;
 	}
 
-	void scriereInFisierBinar(fstream& f)
-	{
-		char* aux = new char[this->numeProprietar.length() + 1];
-		strcpy_s(aux, this->numeProprietar.length() + 1, this->numeProprietar.c_str());
-		int lungime = strlen(aux);
+	void scrieInFisierBinar(fstream& f) {
+		int lungime = this->numeProprietar.length() + 1;
+		char* aux = new char[lungime];
+		strcpy_s(aux, lungime, this->numeProprietar.c_str());
 		f.write((char*)&lungime, sizeof(int));
-		for (int i = 0; i < lungime; i++)
-		{
+		for (int i = 0; i < lungime; i++) {
 			f.write((char*)&aux[i], sizeof(char));
 		}
-		if (aux)
-		{
+		if (aux) {
 			delete[]aux;
 		}
 		f.write((char*)&this->latimeGradina, sizeof(float));
 		f.write((char*)&this->lungimeGradina, sizeof(float));
 		f.write((char*)&this->nrLegumeGradina, sizeof(int));
-		for (int i = 0; i < this->nrLegumeGradina; i++)
-		{
-			legume[i].scriereInFisierBinar(f);
+		for (int i = 0; i < this->nrLegumeGradina; i++) {
+			lungime = this->tipLeguma[i].length() + 1;
+			char* aux = new char[lungime];
+			strcpy_s(aux, lungime, this->tipLeguma[i].c_str());
+			f.write((char*)&lungime, sizeof(int));
+			for (int j = 0; j < lungime; j++) {
+				f.write((char*)&aux[j], sizeof(char));
+			}
+			legume[i]->scrieInFisierBinar(f);
+			if (aux) {
+				delete[]aux;
+			}
 		}
 	}
 
-	void citireDinFisierBinar(fstream& f)
-	{
+	void citesteDinFisierBinar(fstream& f) {
+		for (int i = 0; i < this->nrLegumeGradina; i++) {
+			delete[]this->legume[i];
+		}
+		if (this->legume) {
+			delete[]this->legume;
+		}
+		if (this->tipLeguma) {
+			delete[]tipLeguma;
+		}
 		int lungime;
 		f.read((char*)&lungime, sizeof(int));
-		char* aux = new char[lungime+1];
-		for (int i = 0; i < lungime; i++)
-		{
+		char* aux = new char[lungime + 1];
+		for (int i = 0; i < lungime; i++) {
 			f.read((char*)&aux[i], sizeof(char));
 		}
+		aux[lungime] = '\0';
 		this->numeProprietar = aux;
-		if (aux)
-		{
+		if (aux) {
 			delete[]aux;
 		}
 		f.read((char*)&this->latimeGradina, sizeof(float));
 		f.read((char*)&this->lungimeGradina, sizeof(float));
 		f.read((char*)&this->nrLegumeGradina, sizeof(int));
-		if (this->legume!=nullptr)
-		{
-			delete[]this->legume;
-		}
-		if (this->nrLegumeGradina > 0)
-		{
-			this->legume = new Leguma[this->nrLegumeGradina];
-			for (int i = 0; i < this->nrLegumeGradina; i++)
-			{
-				legume[i].scriereInFisierBinar(f);
+		if (this->nrLegumeGradina > 0) {
+			this->tipLeguma = new string[this->nrLegumeGradina];
+			this->legume = new Flora * [this->nrLegumeGradina];
+			for (int i = 0; i < this->nrLegumeGradina; i++) {
+				f.read((char*)&lungime, sizeof(int));
+				char* aux = new char[lungime];
+				for (int j = 0; j < lungime; j++) {
+					f.read((char*)&aux[j], sizeof(char));
+				}
+				this->tipLeguma[i] = aux;
+				if (this->tipLeguma[i] == "Leguma") {
+					legume[i] = new Leguma();
+				}
+				else {
+					legume[i] = new LegumaRadacinoasa();
+				}
+				legume[i]->citesteDinFisierBinar(f);
+				if (aux) {
+					delete[]aux;
+				}
 			}
 		}
 	}
@@ -1315,8 +1356,7 @@ public:
 int Gradina::nrTotalGradini = 1000;
 
 
-class Pom
-{
+class Pom {
 private:
 	const int id;
 	string nume;
@@ -1327,8 +1367,7 @@ private:
 	static int nrTotalSpecii;
 
 public:
-	Pom() : id(1)
-	{
+	Pom() : id(1) {
 		this->nume = "Mar";
 		this->inaltimeMedie = 0;
 		this->autopolenizator = 0;
@@ -1336,8 +1375,7 @@ public:
 		this->soiuri = NULL;
 	}
 
-	Pom(float inaltimeMedie, bool autopolenizator) : id(1)
-	{
+	Pom(float inaltimeMedie, bool autopolenizator) : id(1) {
 		this->nume = "Mar";
 		this->inaltimeMedie = inaltimeMedie;
 		this->autopolenizator = 0;
@@ -1345,154 +1383,120 @@ public:
 		this->soiuri = NULL;
 	}
 
-	Pom(int idNou, string nume, float inaltimeMedie, bool autopolenizator, int nrSoiuri, string* soiuri) : id(idNou)
-	{
+	Pom(int idNou, string nume, float inaltimeMedie, bool autopolenizator, int nrSoiuri, string* soiuri) : id(idNou) {
 		this->nume = nume;
 		this->inaltimeMedie = inaltimeMedie;
 		this->autopolenizator = autopolenizator;
 		this->nrSoiuri = nrSoiuri;
 		this->soiuri = new string[nrSoiuri];
-		if (nrSoiuri != NULL)
-		{
-			for (int i = 0; i < nrSoiuri; i++)
-			{
+		if (nrSoiuri != NULL) {
+			for (int i = 0; i < nrSoiuri; i++) {
 				this->soiuri[i] = soiuri[i];
 			}
 		}
-		else
-		{
+		else {
 			this->soiuri = NULL;
 		}
 	}
 
-	Pom(const Pom& p) : id(p.id)
-	{
+	Pom(const Pom& p) : id(p.id) {
 		this->nume = p.nume;
 		this->inaltimeMedie = p.inaltimeMedie;
 		this->autopolenizator = p.autopolenizator;
 		this->nrSoiuri = p.nrSoiuri;
-		if (nrSoiuri > 0)
-		{
+		if (nrSoiuri > 0) {
 			this->soiuri = new string[nrSoiuri];
-			for (int i = 0; i < nrSoiuri; i++)
-			{
+			for (int i = 0; i < nrSoiuri; i++) {
 				this->soiuri[i] = p.soiuri[i];
 			}
 		}
 	}
 
-	~Pom()
-	{
-		if (this->soiuri != NULL)
-		{
+	~Pom() {
+		if (this->soiuri != NULL) {
 			delete[]this->soiuri;
 		}
 	}
 
-	const int getId() const
-	{
+	const int getId() const {
 		return this->id;
 	}
 
-	string getNume()
-	{
+	string getNume() {
 		return this->nume;
 	}
 
-	void setNume(string nume)
-	{
-		if (nume.length() > 1)
-		{
+	void setNume(string nume) {
+		if (nume.length() > 1) {
 			this->nume = nume;
 		}
 	}
 
-	float getInaltimeMedie()
-	{
+	float getInaltimeMedie() {
 		return this->inaltimeMedie;
 	}
 
-	void setInaltimeMedie(float inaltimeMedie)
-	{
-		if (inaltimeMedie > 0)
-		{
+	void setInaltimeMedie(float inaltimeMedie) {
+		if (inaltimeMedie > 0) {
 			this->inaltimeMedie = inaltimeMedie;
 		}
 	}
 
-	bool getAutopolenizator()
-	{
+	bool getAutopolenizator() {
 		return this->autopolenizator;
 	}
 
-	void setAutopolenizator(bool autopolenizator)
-	{
-		if (autopolenizator == 0)
-		{
+	void setAutopolenizator(bool autopolenizator) {
+		if (autopolenizator == 0) {
 			this->autopolenizator = 0;
 		}
-		else
-		{
+		else {
 			this->autopolenizator = 1;
 		}
 	}
 
-	int getNrSoiuri()
-	{
+	int getNrSoiuri() {
 		return this->nrSoiuri;
 	}
 
-	string* getSoiuri() const
-	{
+	string* getSoiuri() const {
 		return this->soiuri;
 	}
 
-	void setSoiuri(int nrSoiuri, string* soiuri)
-	{
-		if (nrSoiuri > 0)
-		{
+	void setSoiuri(int nrSoiuri, string* soiuri) {
+		if (nrSoiuri > 0) {
 			this->nrSoiuri = nrSoiuri;
-			if (this->soiuri != NULL)
-			{
+			if (this->soiuri != NULL) {
 				delete[]this->soiuri;
 			}
 			this->soiuri = new string[nrSoiuri];
-			for (int i = 0; i < nrSoiuri; i++)
-			{
+			for (int i = 0; i < nrSoiuri; i++) {
 				this->soiuri[i] = soiuri[i];
 			}
 		}
 	}
 
-	static int getNrTotalSpecii()
-	{
+	static int getNrTotalSpecii() {
 		return Pom::nrTotalSpecii;
 	}
 
-	static void setNrTotalSpecii(int nrTotalSpecii)
-	{
-		if (nrTotalSpecii > 0)
-		{
+	static void setNrTotalSpecii(int nrTotalSpecii) {
+		if (nrTotalSpecii > 0) {
 			Pom::nrTotalSpecii = nrTotalSpecii;
 		}
 	}
 
-	Pom operator=(const Pom& p)
-	{
-		if (this != &p)
-		{
+	Pom operator=(const Pom& p) {
+		if (this != &p) {
 			this->nume = p.nume;
 			this->inaltimeMedie = p.inaltimeMedie;
 			this->nrSoiuri = p.nrSoiuri;
-			if (this->soiuri != NULL)
-			{
+			if (this->soiuri != NULL) {
 				delete[]soiuri;
 			}
-			if (this->nrSoiuri != 0)
-			{
+			if (this->nrSoiuri != 0) {
 				this->soiuri = new string[nrSoiuri];
-				for (int i = 0; i < nrSoiuri; i++)
-				{
+				for (int i = 0; i < nrSoiuri; i++) {
 					this->soiuri[i] = p.soiuri[i];
 				}
 			}
@@ -1500,69 +1504,55 @@ public:
 		return *this;
 	}
 
-	Pom operator+(const Pom& p) const
-	{
+	Pom operator+(const Pom& p) const {
 		Pom copie = *this;
 		copie.inaltimeMedie = this->inaltimeMedie + p.inaltimeMedie;
 		copie.nrSoiuri = this->nrSoiuri + p.nrSoiuri;
-		if (copie.soiuri != NULL)
-		{
+		if (copie.soiuri != NULL) {
 			delete[]copie.soiuri;
 		}
-		if (copie.nrSoiuri > 0)
-		{
+		if (copie.nrSoiuri > 0) {
 			copie.soiuri = new string[copie.nrSoiuri];
-			for (int i = 0; i < this->nrSoiuri; i++)
-			{
+			for (int i = 0; i < this->nrSoiuri; i++) {
 				copie.soiuri[i] = soiuri[i];
 			}
-			for (int i = this->nrSoiuri; i < copie.nrSoiuri; i++)
-			{
+			for (int i = this->nrSoiuri; i < copie.nrSoiuri; i++) {
 				copie.soiuri[i] = p.soiuri[i - nrSoiuri];
 			}
 		}
-		else
-		{
+		else {
 			copie.soiuri = NULL;
 		}
 		return copie;
 	}
 
-	Pom operator+(int a)
-	{
+	Pom operator+(int a) {
 		Pom copie = *this;
 		copie.inaltimeMedie = this->inaltimeMedie + a;
 		return copie;
 	}
-	
-	Pom operator+(string s)
-	{
+
+	Pom operator+(string s) {
 		Pom copie = *this;
 		copie.nrSoiuri = this->nrSoiuri + 1;
 		string* sirCopie = new string[copie.nrSoiuri];
 		int i;
-		for (i = 0; i < this->nrSoiuri; i++)
-		{
+		for (i = 0; i < this->nrSoiuri; i++) {
 			sirCopie[i] = this->soiuri[i];
 		}
 		sirCopie[i] = s;
-		if (copie.soiuri != NULL)
-		{
+		if (copie.soiuri != NULL) {
 			delete[]copie.soiuri;
 		}
 		copie.soiuri = sirCopie;
 		return copie;
 	}
 
-	bool operator==(const Pom& p)
-	{
-		if (this->nume == p.nume && this->inaltimeMedie == p.inaltimeMedie && this->nrSoiuri == p.nrSoiuri)
-		{
+	bool operator==(const Pom& p) {
+		if (this->nume == p.nume && this->inaltimeMedie == p.inaltimeMedie && this->nrSoiuri == p.nrSoiuri) {
 			int ok = 1;
-			for (int i = 0; i < this->nrSoiuri; i++)
-			{
-				if (this->soiuri[i] != p.soiuri[i])
-				{
+			for (int i = 0; i < this->nrSoiuri; i++) {
+				if (this->soiuri[i] != p.soiuri[i]) {
 					ok = 0;
 					break;
 				}
@@ -1571,10 +1561,8 @@ public:
 		}
 	}
 
-	string& operator[](int i)
-	{
-		if (i >= 0 && i < this->nrSoiuri)
-		{
+	string& operator[](int i) {
+		if (i >= 0 && i < this->nrSoiuri) {
 			return soiuri[i];
 		}
 	}
@@ -1585,118 +1573,106 @@ public:
 	friend istream& operator>>(istream& in, Pom& p);
 	friend ostream& operator<<(ostream& out, const Pom& p);
 
-	void scriereInFisierBinar(fstream& f)
-	{
-		int lungime;
-		char* aux = new char[this->nume.length()+1];
-		strcpy_s(aux, this->nume.length()+1, this->nume.c_str());
-		lungime = strlen(aux) + 1;
+	void scrieInFisierBinar(fstream& f) {
+		int lungime = this->nume.length() + 1;
+		char* aux = new char[this->nume.length() + 1];
+		strcpy_s(aux, this->nume.length() + 1, this->nume.c_str());
 		f.write((char*)&lungime, sizeof(int));
-		for (int i = 0; i < lungime; i++)
-		{
+		for (int i = 0; i < lungime; i++) {
 			f.write((char*)&aux[i], sizeof(char));
 		}
-		if (aux)
-		{
+		if (aux) {
 			delete[]aux;
 		}
 		f.write((char*)&this->inaltimeMedie, sizeof(float));
 		f.write((char*)&this->autopolenizator, sizeof(bool));
 		f.write((char*)&this->nrSoiuri, sizeof(int));
-		for (int i = 0; i < this->nrSoiuri; i++)
-		{
-			char* aux2 = new char[this->soiuri[i].length()+1];
-			strcpy_s(aux2, this->soiuri[i].length()+1, this->soiuri[i].c_str());
-			lungime = strlen(aux2) + 1;
+		for (int i = 0; i < this->nrSoiuri; i++) {
+			lungime = this->soiuri[i].length() + 1;
+			char* aux = new char[this->soiuri[i].length() + 1];
+			strcpy_s(aux, this->soiuri[i].length() + 1, this->soiuri[i].c_str());
 			f.write((char*)&lungime, sizeof(int));
-			for (int j = 0; j < lungime; j++)
-			{
-				f.write((char*)&aux2[j], sizeof(char));
+			for (int j = 0; j < lungime; j++) {
+				f.write((char*)&aux[j], sizeof(char));
 			}
-			delete[]aux2;
+			if (aux) {
+				delete[]aux;
+			}
 		}
 	}
 
-	void citireDinFisierBinar(fstream& f)
-	{
+	void citesteDinFisierBinar(fstream& f) {
 		int lungime;
 		f.read((char*)&lungime, sizeof(int));
-		char* aux = new char[lungime];
-		for (int i = 0; i < lungime; i++)
-		{
+		char* aux = new char[lungime + 1];
+		int i;
+		for (i = 0; i < lungime; i++) {
 			f.read((char*)&aux[i], sizeof(char));
 		}
+		aux[i] = '\0';
 		this->nume = aux;
-		if (aux)
-		{
+		if (aux) {
 			delete[]aux;
 		}
 		f.read((char*)&this->inaltimeMedie, sizeof(float));
 		f.read((char*)&this->autopolenizator, sizeof(bool));
 		f.read((char*)&this->nrSoiuri, sizeof(int));
-		if (this->soiuri != NULL)
-		{
+		if (this->soiuri) {
 			delete[]this->soiuri;
 		}
-		if (this->nrSoiuri > 0)
-		{
+		if (this->nrSoiuri > 0) {
 			this->soiuri = new string[this->nrSoiuri];
-			for (int i = 0; i < this->nrSoiuri; i++)
-			{
+			int i;
+			for (i = 0; i < this->nrSoiuri; i++) {
 				f.read((char*)&lungime, sizeof(int));
-				char* aux2 = new char[lungime];
-				for (int j = 0; j < lungime; j++)
-				{
-					f.read((char*)&aux2[j], sizeof(char));
+				char* aux = new char[lungime + 1];
+				for (int j = 0; j < lungime; j++) {
+					f.read((char*)&aux[j], sizeof(char));
 				}
-				this->soiuri[i] = aux2;
-				delete[]aux2;
+				aux[i] = '\0';
+				this->soiuri[i] = aux;
+				if (aux) {
+					delete[]aux;
+				}
 			}
 		}
 	}
 };
 int Pom::nrTotalSpecii = 60000;
 
-Pom operator+(int a, const Pom& p)
-{
+Pom operator+(int a, const Pom& p) {
 	Pom copie = p;
 	copie.inaltimeMedie = a + p.inaltimeMedie;
 	return copie;
 }
 
-Pom operator+(string s, const Pom& p)
-{
+Pom operator+(string s, const Pom& p) {
 	Pom copie = p;
 	copie.nrSoiuri = p.nrSoiuri + 1;
 	string* sirCopie = new string[copie.nrSoiuri];
 	int i;
-	for (i = 0; i < p.nrSoiuri; i++)
-	{
-		sirCopie[i+1] = p.soiuri[i];
+	for (i = 0; i < p.nrSoiuri; i++) {
+		sirCopie[i + 1] = p.soiuri[i];
 	}
 	sirCopie[0] = s;
-	if (copie.soiuri != NULL)
-	{
+	if (copie.soiuri != NULL) {
 		delete[]copie.soiuri;
 	}
 	copie.soiuri = sirCopie;
 	return copie;
 }
 
-void ordonareSoiuri(Pom& p)
-{
+void ordonareSoiuri(Pom& p) {
 	for (int i = 0; i < p.nrSoiuri - 1; i++)
 		for (int j = i + 1; j < p.nrSoiuri; j++)
-			if (p.soiuri[i] > p.soiuri[j])
-			{
+			if (p.soiuri[i] > p.soiuri[j]) {
 				string aux = p.soiuri[i];
 				p.soiuri[i] = p.soiuri[j];
 				p.soiuri[j] = aux;
 			}
 }
 
-istream& operator>>(istream& in, Pom& p)
-{
+istream& operator>>(istream& in, Pom& p) {
 	cout << "Numele pomului este: ";
 	in >> p.nume;
 	cout << "Care este inaltimea medie? (cm) ";
@@ -1705,43 +1681,35 @@ istream& operator>>(istream& in, Pom& p)
 	in >> p.autopolenizator;
 	cout << "Introduceti numarul de soiuri pe care vreti sa le cititi: ";
 	in >> p.nrSoiuri;
-	if (p.soiuri != NULL)
-	{
+	if (p.soiuri != NULL) {
 		delete[]p.soiuri;
 	}
 	p.soiuri = new string[p.nrSoiuri];
-	for (int i = 0; i < p.nrSoiuri; i++)
-	{
+	for (int i = 0; i < p.nrSoiuri; i++) {
 		cout << "Soi" << (i + 1) << ": ";
 		in >> p.soiuri[i];
 	}
 	return in;
 }
 
-ostream& operator<<(ostream& out, const Pom& p)
-{
+ostream& operator<<(ostream& out, const Pom& p) {
 	out << p.id << ". " << "Pomul " << p.nume << " are, in medie, inaltimea de " << p.inaltimeMedie << " metri.";
-	if (p.autopolenizator)
-	{
+	if (p.autopolenizator) {
 		out << " In aceasta specie putem intalni soiuri autopolenizatoare. ";
 	}
-	else
-	{
+	else {
 		out << " In aceasta specie nu putem intalni soiuri autopolenizatoare. ";
 	}
 
-	if (p.nrSoiuri != 0)
-	{
+	if (p.nrSoiuri != 0) {
 		out << p.nrSoiuri << " dintre cele mai intalnite soiuri ale acestei specii sunt: " << endl;
 		int i;
-		for (i = 0; i < p.nrSoiuri - 1; i++)
-		{
+		for (i = 0; i < p.nrSoiuri - 1; i++) {
 			out << p.soiuri[i] << ", ";
 		}
 		out << p.soiuri[i] << ". " << endl;
 	}
-	else
-	{
+	else {
 		out << "Nu a fost introdus numarul de soiuri. ";
 	}
 	out << "In lume exista in total peste " << p.nrTotalSpecii << " de soiuri de pomi." << endl;
@@ -1749,10 +1717,9 @@ ostream& operator<<(ostream& out, const Pom& p)
 }
 
 
-void main()
-{
+void main() {
 	//// FAZA 1
-	cout << "**** FAZA 1 ****" << endl << endl;
+	cout << "***** FAZA 1 *****" << endl << endl << endl;
 	
 	// clasa CEREALA
 	// Constructor fara parametri
@@ -1765,8 +1732,7 @@ void main()
 	strcpy_s(numeC2, strlen("Porumb") + 1, "Porumb");
 	Cereala c2(numeC2, "dulce", 1);
 	cout << c2 << endl;
-	if (numeC2 != NULL)
-	{
+	if (numeC2 != NULL) {
 		delete[]numeC2;
 	}
 	
@@ -1777,698 +1743,661 @@ void main()
 	strcpy_s(categorieP1, strlen("monocotiledonata") + 1, "monocotiledonata");
 	Cereala c3(2, numeC3, "comuna", 100, 1, 25, categorieP1);
 	cout << c3 << endl;
-	if (numeC3 != NULL)
-	{
+	if (numeC3 != NULL) {
 		delete[]numeC3;
+	}
+	if (categorieP1) {
+		delete[]categorieP1;
+	}
+
+	// Clasa LEGUMA
+	// Constructor fara parametri
+	Leguma l1;
+	cout << l1 << endl;
+
+	// Constructori cu parametri
+	Leguma l2(1);
+	cout << l2 << endl;
+
+	char* numeL3;
+	numeL3 = new char[strlen("Ceapa") + 1];
+	strcpy_s(numeL3, strlen("Ceapa") + 1, "Ceapa");
+	Leguma l3(2, numeL3, "bienala", 1, 6.5, 30);
+	cout << l3 << endl;
+	if (numeL3 != NULL) {
+		delete[]numeL3;
 	}
 
 
-	//// Clasa LEGUMA
-	//// Constructor fara parametri
-	//Leguma l1;
-	//cout << l1 << endl;
+	// Clasa POM
+	// Constructor fara parametri
+	Pom p1;
+	cout << p1 << endl;
 
-	//// Constructori cu parametri
-	//Leguma l2(1);
-	//cout << l2 << endl;
+	// Constructori cu parametri
+	Pom p2(2.3, 1);
+	cout << p2 << endl;
 
-	//char* numeL3;
-	//numeL3 = new char[strlen("Ceapa") + 1];
-	//strcpy_s(numeL3, strlen("Ceapa") + 1, "Ceapa");
-	//Leguma l3(2, numeL3, "bienala", 1, 6.5, 30);
-	//cout << l3 << endl;
-	//if (numeL3 != NULL)
-	//{
-	//	delete[]numeL3;
-	//}
-
-
-	//// Clasa POM
-	//// Constructor fara parametri
-	//Pom p1;
-	//cout << p1 << endl;
-
-	//// Constructori cu parametri
-	//Pom p2(2.3, 1);
-	//cout << p2 << endl;
-
-	//int nrSoiuri3;
-	//cout << "Introduceti numarul de soiuri: ";
-	//cin >> nrSoiuri3;
-	//string* soiuri3 = new string[nrSoiuri3];
-	//for (int i = 0; i < nrSoiuri3; i++)
-	//{
-	//	cout << "Soiul " << i + 1 << ": ";
-	//	cin >> soiuri3[i];
-	//}
-	//Pom p3(2, "Par", 1.9, 1, nrSoiuri3, soiuri3);
-	//cout << p3 << endl << endl;
-	//if (soiuri3 != NULL)
-	//{
-	//	delete[]soiuri3;
-	//}
+	int nrSoiuri3;
+	cout << "Introduceti numarul de soiuri: ";
+	cin >> nrSoiuri3;
+	string* soiuri3 = new string[nrSoiuri3];
+	for (int i = 0; i < nrSoiuri3; i++) {
+		cout << "Soiul " << i + 1 << ": ";
+		cin >> soiuri3[i];
+	}
+	Pom p3(2, "Par", 1.9, 1, nrSoiuri3, soiuri3);
+	cout << p3 << endl << endl;
+	if (soiuri3 != NULL) {
+		delete[]soiuri3;
+	}
 
 
 	//// FAZA 2
-	//cout << "**** FAZA 2 ****" << endl << endl;
-	//
-	//// clasa CEREALA
-	//// Constructor de copiere
-	//char* numeC4;
-	//numeC4 = new char[strlen("Secara") + 1];
-	//strcpy_s(numeC4, strlen("Secara") + 1, "Secara");
-	//Cereala c4(2, numeC4, "comuna", 100, 1, 25);
-	//Cereala c5 = c4;
-	//cout << c5 << endl;
-	//if (numeC4 != NULL)
-	//{
-	//	delete[]numeC4;
-	//}
-
-	//// Apel functie globala de modificare a temperaturii
-	//cout << "In medie, o temperatura buna de incoltire este cu 15 grade mai mica decat temperatura optima pentru coacere. Stiind care este temperatura optima pentru coacere, temperatura de incoltire este: "
-	//	<< temperaturaIncoltire(c5) << " grade Celsius." << endl << endl;
-
-	//// Apel set-eri
-	//char* numeC5;
-	//numeC5 = new char[strlen("Orz") + 1];
-	//strcpy_s(numeC5, strlen("Orz") + 1, "Orz");
-	//c5.setNume(numeC5);
-	//c5.setSoi("Smarald");
-	//c5.setDurataPerioadaVegetatie(90);
-	//c5.setConsumUman(1);
-	//c5.setTemperatura(30);
-	//c5.setCantitateMaximaPesticide(50);
-	//if (numeC5 != NULL)
-	//{
-	//	delete[]numeC5;
-	//}
-
-	//// Apel get-eri
-	//cout << c5.getId() << ". " << "Cereala " << c5.getNume() << " " << c5.getSoi() << " are perioada de vegetatie de " << c5.getDurataPerioadaVegetatie() << " zile. ";
-	//if (c5.getConsumUman())
-	//{
-	//	cout << "Aceasta este destinata consumului uman. ";
-	//}
-	//else
-	//{
-	//	cout << "Aceasta este de tip furajer. ";
-	//}
-	//cout << "Temperatura optima de coacere pentru acest tip de cereale este in jur de " << c5.getTemperatura() << " grade Celsius. ";
-	//cout << "Cantitatea maxima de pesticide admisa in Romania este, in medie,  de " << c5.getCantitateMaximaPesticide() << " kg/ha." << endl << endl;
-
-	//// clasa LEGUMA
-	//// Constructor de copiere
-	//char* numeL4;
-	//numeL4 = new char[strlen("Ceapa") + 1];
-	//strcpy_s(numeL4, strlen("Ceapa") + 1, "Ceapa");
-	//Leguma l4(2, numeL4, "bienala", 1, 6.5, 30);
-	//Leguma l5 = l4;
-	//cout << l5 << endl;
-	//if (numeL4 != NULL)
-	//{
-	//	delete[]numeL4;
-	//}
-
-	//// Apel set-eri
-	//char* numeL5;
-	//numeL5 = new char[strlen("Sparanghel") + 1];
-	//strcpy_s(numeL5, strlen("Sparanghel") + 1, "Sparanghel");
-	//l5.setNume(numeL5);
-	//l5.setCategoriePlantaDurataVegetatie("perena");
-	//l5.setRezistentaSeceta(1);
-	//l5.setPHSol(7.6);
-	//l5.setDistantaIntrePlante(40);
-	//l5.setNrTotalSpecii(10500);
-	//if (numeL5 != NULL)
-	//{
-	//	delete[]numeL5;
-	//}
-
-	//// Apel get-eri
-	//cout << l5.getId() << ". " << "Leguma " << l5.getNume() << " este o leguma " << l5.getCategoriePlantaDurataVegetatie() << ". " << (l5.getRezistentaSeceta()
-	//	? "Aceasta este rezistenta la seceta. " : "Aceasta nu este rezistenta la seceta. ");
-	//cout << "PH-ul solului in care este cultivata planta trebuie sa fie " << l5.getPHSol();
-	//cout << ". Pentru ca planta sa se poata dezvolta, este nevoie de o distanta de " << l5.getDistantaIntrePlante() << " cm, intre plante. ";
-	//cout << "In lume se estimeaza a fi undeva pe la " << l5.getNrTotalSpecii() << " de soiuri de plante." << endl << endl;
+	cout << "***** FAZA 2 *****" << endl << endl << endl;
+	
+	// clasa CEREALA
+	// Constructor de copiere
+	char* numeC4;
+	numeC4 = new char[strlen("Secara") + 1];
+	strcpy_s(numeC4, strlen("Secara") + 1, "Secara");
+	char* categorieP2 = new char[strlen("monocotiledonata") + 1];
+	strcpy_s(categorieP2, strlen("monocotiledonata") + 1, "monocotiledonata");
+	Cereala c4(2, numeC4, "comuna", 100, 1, 25, categorieP2);
+	Cereala c5 = c4;
+	cout << c5 << endl;
+	if (numeC4 != NULL) {
+		delete[]numeC4;
+	}
+	if (categorieP2) {
+		delete[]categorieP2;
+	}
 
 
-	//// clasa POM
-	//// Constructor de copiere
-	//int nrSoiuri4 = 3;
-	//string* soiuri4 = new string[nrSoiuri4];
-	//soiuri4[0] = "Williams";
-	//soiuri4[1] = "Santa Maria";
-	//soiuri4[2] = "Napoca";
-	//Pom p4(2, "Par", 1.9, 1, nrSoiuri4, soiuri4);
-	//Pom p5 = p4;
-	//cout << p5 << endl;
-	//if (soiuri4 != NULL)
-	//{
-	//	delete[]soiuri4;
-	//}
+	// Apel functie globala de modificare a temperaturii
+	cout << "In medie, o temperatura buna de incoltire este cu 15 grade mai mica decat temperatura optima pentru coacere. Stiind care este temperatura optima pentru coacere, temperatura de incoltire este: "
+		<< afiseazaTemperaturaIncoltire(c5) << " grade Celsius." << endl << endl;
 
-	//// Apel functie globala de ordonare alfabetica a soiurilor
-	//ordonareSoiuri(p5);
-	//cout << "Obiectul p5, cu soiurile afisate in ordine alfabetica, arata astfel: " << endl;
-	//cout << p5 << endl;
+	// Apel set-eri
+	char* numeC5;
+	numeC5 = new char[strlen("Orz") + 1];
+	strcpy_s(numeC5, strlen("Orz") + 1, "Orz");
+	c5.setNume(numeC5);
+	c5.setSoi("Smarald");
+	c5.setDurataPerioadaVegetatie(90);
+	c5.setConsumUman(1);
+	c5.setTemperatura(30);
+	c5.setCantitateMaximaPesticide(50);
+	if (numeC5 != NULL) {
+		delete[]numeC5;
+	}
 
-	//// Apel set-eri
-	//p5.setNume("Cires");
-	//p5.setInaltimeMedie(1.7);
-	//p5.setAutopolenizator(1);
-	//int nrSoiuri5 = 3;
-	//string* soiuri5 = new string[nrSoiuri5];
-	//soiuri5[0] = "Japonez";
-	//soiuri5[1] = "Nanking";
-	//soiuri5[2] = "Spectral";
-	//p5.setSoiuri(nrSoiuri5, soiuri5);
-	//p5.setNrTotalSpecii(60100);
-	//if (soiuri5 != NULL)
-	//{
-	//	delete[]soiuri5;
-	//}
+	// Apel get-eri
+	cout << c5.getId() << ". " << "Cereala " << c5.getNume() << " " << c5.getSoi() << " are perioada de vegetatie de " << c5.getDurataPerioadaVegetatie() << " zile. ";
+	if (c5.getConsumUman()) {
+		cout << "Aceasta este destinata consumului uman. ";
+	}
+	else {
+		cout << "Aceasta este de tip furajer. ";
+	}
+	cout << "Temperatura optima de coacere pentru acest tip de cereale este in jur de " << c5.getTemperatura() << " grade Celsius. ";
+	cout << "Cantitatea maxima de pesticide admisa in Romania este, in medie,  de " << c5.getCantitateMaximaPesticide() << " kg/ha." << endl << endl;
 
-	//// Apel get-eri
-	//cout << p5.getId() << ". " << "Pomul " << p5.getNume() << " are, in medie, inaltimea de " << p5.getInaltimeMedie() << " metri.";
-	//if (p5.getAutopolenizator())
-	//{
-	//	cout << " In aceasta specie putem intalni soiuri autopolenizatoare. ";
-	//}
-	//else
-	//{
-	//	cout << " In aceasta specie nu putem intalni soiuri autopolenizatoare. ";
-	//}
+	// clasa LEGUMA
+	// Constructor de copiere
+	char* numeL4;
+	numeL4 = new char[strlen("Ceapa") + 1];
+	strcpy_s(numeL4, strlen("Ceapa") + 1, "Ceapa");
+	Leguma l4(2, numeL4, "bienala", 1, 6.5, 30);
+	Leguma l5 = l4;
+	cout << l5 << endl;
+	if (numeL4 != NULL) {
+		delete[]numeL4;
+	}
 
-	//if (p5.getNrSoiuri() != 0)
-	//{
-	//	cout << p5.getNrSoiuri() << " dintre cele mai intalnite soiuri ale acestei specii sunt: ";
-	//	int i;
-	//	for (i = 0; i < p5.getNrSoiuri() - 1; i++)
-	//	{
-	//		cout << p4.getSoiuri()[i] << ", ";
-	//	}
-	//	cout << p5.getSoiuri()[p5.getNrSoiuri()] << "." << endl;
-	//}
-	//else
-	//{
-	//	cout << "Nu a fost introdus numarul de soiuri";
-	//}
-	//cout << "In lume exista in total peste " << p5.getNrTotalSpecii() << " de soiuri de pomi." << endl << endl << endl;
+	// Apel set-eri
+	char* numeL5;
+	numeL5 = new char[strlen("Sparanghel") + 1];
+	strcpy_s(numeL5, strlen("Sparanghel") + 1, "Sparanghel");
+	l5.setNume(numeL5);
+	l5.setCategoriePlantaDurataVegetatie("perena");
+	l5.setRezistentaSeceta(1);
+	l5.setPHSol(7.6);
+	l5.setDistantaIntrePlante(40);
+	l5.setNrTotalSpecii(10500);
+	if (numeL5 != NULL) {
+		delete[]numeL5;
+	}
 
-
-	//// FAZA 3
-	//cout << "**** FAZA 3 ****" << endl << endl;
-	//
-	//// clasa CEREALA
-	//// Operator = si operator <<
-	//char* numeC6;
-	//numeC6 = new char[strlen("Secara") + 1];
-	//strcpy_s(numeC6, strlen("Secara") + 1, "Secara");
-	//Cereala c6(2, numeC6, "comuna", 100, 1, 25);
-	//Cereala c7;
-	//c7 = c6;
-	//cout << c7 << endl;
-
-	//// Operator +=
-	//c7 += c6;
-	//cout << c7 << endl;
-
-	//// Operator cast
-	//int durataPerioadaVegetatie = (int)c6;
-	//cout << "Durata perioadei de vegetatie pentru " << c6.getNume() << " este de: " << durataPerioadaVegetatie << " zile." << endl;
-	//float temperatura = c6;
-	//cout << "Temperatura optima pentru " << c6.getNume() << " este de: " << temperatura << " grade Celsius." << endl;
-
-	//cout << endl << endl;
-
-	//
-	//// clasa LEGUMA
-	//// Operator = si operator >>
-	//Leguma l6;
-	//cin >> l6;
-	//Leguma l7;
-	//l7 = l6;
-	//cout << l7 << endl;
-
-	//// Operator ++ - forma postfixata
-	//Leguma l8;
-	//l8 = l7++;
-	//cout << l8 << endl;
-
-	//// Operator ++ - forma prefixata
-	//l8 = ++l7;
-	//cout << l8 << endl;
-
-	//// Operator <
-	//if (l6 < l7)
-	//{
-	//	cout << "Distanta dintre plante este mai mare in cazul plantei " << l7.getNume() << ".";
-	//}
-	//else
-	//{
-	//	cout << "Distanta dintre plante este mai mare in cazul plantei " << l7.getNume() << " sau distantele sunt egale.";
-	//}
-	//cout << endl << endl;
+	// Apel get-eri
+	cout << l5.getId() << ". " << "Leguma " << l5.getNume() << " este o leguma " << l5.getCategoriePlantaDurataVegetatie() << ". " << (l5.getRezistentaSeceta()
+		? "Aceasta este rezistenta la seceta. " : "Aceasta nu este rezistenta la seceta. ");
+	cout << "PH-ul solului in care este cultivata planta trebuie sa fie " << l5.getPHSol();
+	cout << ". Pentru ca planta sa se poata dezvolta, este nevoie de o distanta de " << l5.getDistantaIntrePlante() << " cm, intre plante. ";
+	cout << "In lume se estimeaza a fi undeva pe la " << l5.getNrTotalSpecii() << " de soiuri de plante." << endl << endl;
 
 
-	//// clasa POM
-	//// Operator = 
-	//int nrSoiuri6 = 3;
-	//string* soiuri6 = new string[nrSoiuri6];
-	//soiuri6[0] = "Williams";
-	//soiuri6[1] = "Santa Maria";
-	//soiuri6[2] = "Napoca";
-	//Pom p6(2, "Par", 1.9, 1, nrSoiuri6, soiuri6);
-	//Pom p7;
-	//p7 = p6;
-	//cout << p7 << endl;
-	//if (soiuri6 != NULL)
-	//{
-	//	delete[]soiuri6;
-	//}
+	// clasa POM
+	// Constructor de copiere
+	int nrSoiuri4 = 3;
+	string* soiuri4 = new string[nrSoiuri4];
+	soiuri4[0] = "Williams";
+	soiuri4[1] = "Santa Maria";
+	soiuri4[2] = "Napoca";
+	Pom p4(2, "Par", 1.9, 1, nrSoiuri4, soiuri4);
+	Pom p5 = p4;
+	cout << p5 << endl;
+	if (soiuri4 != NULL) {
+		delete[]soiuri4;
+	}
 
-	//// Operator + cu 2 obiecte
-	//Pom p8;
-	//p8 = p6 + p7;
-	//cout << p8 << endl;
+	// Apel functie globala de ordonare alfabetica a soiurilor
+	ordonareSoiuri(p5);
+	cout << "Obiectul p5, cu soiurile afisate in ordine alfabetica, arata astfel: " << endl;
+	cout << p5 << endl;
 
-	//// Operator + cu o variabila de tip int
-	//cout << p7.getInaltimeMedie() << endl << p8.getInaltimeMedie() << endl;
-	//p8 = p7 + 4;
-	//cout << p8 << endl;
-	//
-	//// Operator + cu o variabila de tip string
-	//// metoda
-	//p8 = p8 + "soiNou1";
-	//cout << p8 << endl;
-	//// functie globala
-	//p8 = "soiNou2" + p8;
-	//cout << p8 << endl;
+	// Apel set-eri
+	p5.setNume("Cires");
+	p5.setInaltimeMedie(1.7);
+	p5.setAutopolenizator(1);
+	int nrSoiuri5 = 3;
+	string* soiuri5 = new string[nrSoiuri5];
+	soiuri5[0] = "Japonez";
+	soiuri5[1] = "Nanking";
+	soiuri5[2] = "Spectral";
+	p5.setSoiuri(nrSoiuri5, soiuri5);
+	p5.setNrTotalSpecii(60100);
+	if (soiuri5 != NULL) {
+		delete[]soiuri5;
+	}
 
-	//// Operator ==
-	//if (p7 == p8)
-	//{
-	//	cout << "Cei doi pomi sunt echivalenti." << endl << endl;
-	//}
-	//else
-	//{
-	//	cout << "Cei doi pomi nu sunt echivalenti." << endl << endl;
-	//}
-	//
-	//// Operator []
-	//cout << p8[2] << endl << endl << endl;
+	// Apel get-eri
+	cout << p5.getId() << ". " << "Pomul " << p5.getNume() << " are, in medie, inaltimea de " << p5.getInaltimeMedie() << " metri.";
+	if (p5.getAutopolenizator()) {
+		cout << " In aceasta specie putem intalni soiuri autopolenizatoare. ";
+	}
+	else {
+		cout << " In aceasta specie nu putem intalni soiuri autopolenizatoare. ";
+	}
+
+	if (p5.getNrSoiuri() != 0) {
+		cout << p5.getNrSoiuri() << " dintre cele mai intalnite soiuri ale acestei specii sunt: ";
+		int i;
+		for (i = 0; i < p5.getNrSoiuri() - 1; i++) {
+			cout << p4.getSoiuri()[i] << ", ";
+		}
+		cout << p5.getSoiuri()[i] << "." << endl;
+	}
+	else {
+		cout << "Nu a fost introdus numarul de soiuri";
+	}
+	cout << "In lume exista in total peste " << p5.getNrTotalSpecii() << " de soiuri de pomi." << endl << endl << endl;
+
+
+	// FAZA 3
+	cout << "***** FAZA 3 *****" << endl << endl << endl;
+
+	// clasa CEREALA
+	// Operator = si operator <<
+	char* numeC6;
+	numeC6 = new char[strlen("Secara") + 1];
+	strcpy_s(numeC6, strlen("Secara") + 1, "Secara");
+	char* categorieP3 = new char[strlen("monocotiledonata") + 1];
+	strcpy_s(categorieP3, strlen("monocotiledonata") + 1, "monocotiledonata");
+	Cereala c6(2, numeC6, "comuna", 100, 1, 25, categorieP3);
+	Cereala c7;
+	c7 = c6;
+	cout << c7 << endl;
+	if (numeC6) {
+		delete[]numeC6;
+	}
+	if (categorieP3) {
+		delete[]categorieP3;
+	}
+
+	// Operator +=
+	c7 += c6;
+	cout << c7 << endl;
+
+	// Operator cast
+	int durataPerioadaVegetatie = (int)c6;
+	cout << "Durata perioadei de vegetatie pentru " << c6.getNume() << " este de: " << durataPerioadaVegetatie << " zile." << endl;
+	float temperatura = c6;
+	cout << "Temperatura optima pentru " << c6.getNume() << " este de: " << temperatura << " grade Celsius." << endl;
+
+	cout << endl << endl;
+
+
+	// clasa LEGUMA
+	// Operator = si operator >>
+	Leguma l6;
+	cin >> l6;
+	Leguma l7;
+	l7 = l6;
+	cout << l7 << endl;
+
+	// Operator ++ - forma postfixata
+	Leguma l8;
+	l8 = l7++;
+	cout << l8 << endl;
+
+	// Operator ++ - forma prefixata
+	l8 = ++l7;
+	cout << l8 << endl;
+
+	// Operator <
+	if (l6 < l7) {
+		cout << "Distanta dintre plante este mai mare in cazul plantei " << l7.getNume() << ".";
+	}
+	else {
+		cout << "Distanta dintre plante este mai mare in cazul plantei " << l7.getNume() << " sau distantele sunt egale.";
+	}
+	cout << endl << endl;
+
+
+	// clasa POM
+	// Operator = 
+	int nrSoiuri6 = 3;
+	string* soiuri6 = new string[nrSoiuri6];
+	soiuri6[0] = "Williams";
+	soiuri6[1] = "Santa Maria";
+	soiuri6[2] = "Napoca";
+	Pom p6(2, "Par", 1.9, 1, nrSoiuri6, soiuri6);
+	Pom p7;
+	p7 = p6;
+	cout << p7 << endl;
+	if (soiuri6 != NULL) {
+		delete[]soiuri6;
+	}
+
+	// Operator + cu 2 obiecte
+	Pom p8;
+	p8 = p6 + p7;
+	cout << p8 << endl;
+
+	// Operator + cu o variabila de tip int
+	cout << p7.getInaltimeMedie() << endl << p8.getInaltimeMedie() << endl;
+	p8 = p7 + 4;
+	cout << p8 << endl;
+	
+	// Operator + cu o variabila de tip string
+	// metoda
+	p8 = p8 + "soiNou1";
+	cout << p8 << endl;
+	// functie globala
+	p8 = "soiNou2" + p8;
+	cout << p8 << endl;
+
+	// Operator ==
+	if (p7 == p8) {
+		cout << "Cei doi pomi sunt echivalenti." << endl << endl;
+	}
+	else {
+		cout << "Cei doi pomi nu sunt echivalenti." << endl << endl;
+	}
+	
+	// Operator []
+	cout << p8[2] << endl << endl << endl;
 
 
 	//// FAZA 4
-	//cout << "**** FAZA 4 ****" << endl << endl;
-	//
-	//// Vectorul cu obiecte de tipul clasei CEREALA
-	//int n1;
-	//cout << "Introduceti numarul de cereale: ";
-	//cin >> n1;
-	//Cereala* cVector = new Cereala[n1];
-	//for (int i = 0; i < n1; i++)
-	//{
-	//	cout << "Cereala " << (i + 1) << endl;
-	//	cin >> cVector[i];
-	//}
-	//cout << endl;
-	//for (int i = 0; i < n1; i++)
-	//{
-	//	cout << "Cereala " << (i + 1) << ":" << endl;
-	//	cout << cVector[i];
-	//}
-	//cout << endl;
-	//if (cVector != NULL)
-	//{
-	//	delete[]cVector;
-	//}
+	cout << "***** FAZA 4 *****" << endl << endl << endl;
+	
+	// Vectorul cu obiecte de tipul clasei CEREALA
+	int n1;
+	cout << "Introduceti numarul de cereale: ";
+	cin >> n1;
+	Cereala* cVector = new Cereala[n1];
+	for (int i = 0; i < n1; i++) {
+		cout << "Cereala " << (i + 1) << endl;
+		cin >> cVector[i];
+	}
+	cout << endl;
+	for (int i = 0; i < n1; i++) {
+		cout << "Cereala " << (i + 1) << ":" << endl;
+		cout << cVector[i];
+	}
+	cout << endl;
+	if (cVector != NULL) {
+		delete[]cVector;
+	}
 
-	//// Vectorul cu obiecte de tipul clasei LEGUMA
-	//int n2;
-	//cout << "Introduceti numarul de legume: ";
-	//cin >> n2;
-	//Leguma* lVector = new Leguma[n2];
-	//for (int i = 0; i < n2; i++)
-	//{
-	//	cout << "Leguma " << (i + 1) << endl;
-	//	cin >> lVector[i];
-	//}
-	//cout << endl;
-	//for (int i = 0; i < n2; i++)
-	//{
-	//	cout << "Leguma " << (i + 1) << ":" << endl;
-	//	cout << lVector[i];
-	//}
-	//cout << endl;
-	//if (lVector != NULL)
-	//{
-	//	delete[]lVector;
-	//}
+	// Vectorul cu obiecte de tipul clasei LEGUMA
+	int n2;
+	cout << "Introduceti numarul de legume: ";
+	cin >> n2;
+	Leguma* lVector = new Leguma[n2];
+	for (int i = 0; i < n2; i++) {
+		cout << "Leguma " << (i + 1) << endl;
+		cin >> lVector[i];
+	}
+	cout << endl;
+	for (int i = 0; i < n2; i++) {
+		cout << "Leguma " << (i + 1) << ":" << endl;
+		cout << lVector[i];
+	} 
+	cout << endl;
+	if (lVector) {
+		delete[]lVector;
+	}
 
-	//// Vectorul cu obiecte de tipul clasei POM
-	//int n3;
-	//cout << "Introduceti numarul de pomi: ";
-	//cin >> n3;
-	//Pom* pVector = new Pom[n3];
-	//for (int i = 0; i < n3; i++)
-	//{
-	//	cout << "Pomul " << (i + 1) << endl;
-	//	cin >> pVector[i];
-	//}
-	//cout << endl;
-	//for (int i = 0; i < n3; i++)
-	//{
-	//	cout << "Pomul " << (i + 1) << ":" << endl;
-	//	cout << pVector[i];
-	//}
-	//cout << endl;
-	//if (pVector != NULL)
-	//{
-	//	delete[]pVector;
-	//}
+	// Vectorul cu obiecte de tipul clasei POM
+	int n3;
+	cout << "Introduceti numarul de pomi: ";
+	cin >> n3;
+	Pom* pVector = new Pom[n3];
+	for (int i = 0; i < n3; i++) {
+		cout << "Pomul " << (i + 1) << endl;
+		cin >> pVector[i];
+	}
+	cout << endl;
+	for (int i = 0; i < n3; i++) {
+		cout << "Pomul " << (i + 1) << ":" << endl;
+		cout << pVector[i];
+	}
+	cout << endl;
+	if (pVector != NULL) {
+		delete[]pVector;
+	}
 
-	////Matrice cu obiecte de tipul clasei CEREALA
-	//int linii, coloane;
-	//cout << "Introduceti numarul de linii: ";
-	//cin >> linii;
-	//cout << "Introduceti numarul de coloane: ";
-	//cin >> coloane;
-	//Cereala** cMatrice = new Cereala * [linii];
-	//for (int i = 0; i < linii; i++)
-	//{
-	//	cMatrice[i] = new Cereala[coloane];
-	//}
-	//for (int i = 0; i < linii; i++)
-	//{
-	//	for (int j = 0; j < coloane; j++)
-	//	{
-	//		cout << "Cereala" << i+1 << j+1 << " este: ";
-	//		cin >> cMatrice[i][j];
-	//	}
-	//}
-	//cout << endl;
-	//for (int i = 0; i < linii; i++)
-	//{
-	//	for (int j = 0; j < coloane; j++)
-	//	{
-	//		cout << "Obiectul " << (i + 1) << (j + 1) << ":" << endl;
-	//		cout << cMatrice[i][j];
-	//	}
-	//}
-	//cout << endl << endl;
-	//for (int i = 0; i < linii; i++)
-	//{
-	//	if (cMatrice[i] != NULL)
-	//	{
-	//		delete[]cMatrice[i];
-	//	}
-	//}
-	//if (cMatrice != NULL)
-	//{
-	//	delete[]cMatrice;
-	//}
+	//Matrice cu obiecte de tipul clasei CEREALA
+	int linii, coloane;
+	cout << "Introduceti numarul de linii: ";
+	cin >> linii;
+	cout << "Introduceti numarul de coloane: ";
+	cin >> coloane;
+	Cereala** cMatrice = new Cereala * [linii];
+	for (int i = 0; i < linii; i++) {
+		cMatrice[i] = new Cereala[coloane];
+	}
+	for (int i = 0; i < linii; i++) {
+		for (int j = 0; j < coloane; j++) {
+			cout << "Cereala" << i+1 << j+1 << " este: ";
+			cin >> cMatrice[i][j];
+		}
+	}
+	cout << endl;
+	for (int i = 0; i < linii; i++) {
+		for (int j = 0; j < coloane; j++) {
+			cout << "Obiectul " << (i + 1) << (j + 1) << ":" << endl;
+			cout << cMatrice[i][j];
+		}
+	}
+	cout << endl << endl;
+	for (int i = 0; i < linii; i++) {
+		if (cMatrice[i] != NULL) {
+			delete[]cMatrice[i];
+		}
+	}
+	if (cMatrice != NULL) {
+		delete[]cMatrice;
+	}
 
 
 	//// FAZA 5
-	//cout << "**** FAZA 5 ****" << endl << endl;
-	//
-	//// Constructor fara parametri
-	//Gradina g1;
-	//cout << g1 << endl;
+	cout << "**** FAZA 5 ****" << endl << endl;
 
-	//// Constructor cu parametri
-	//char* gNumeLeguma1 = new char[strlen("Ardei") + 1];;
-	//strcpy_s(gNumeLeguma1, strlen("Ardei") + 1, "Ardei");
-	//Leguma gLeguma1(100, gNumeLeguma1, "anuala", 0, 6.5, 20);
-	////legume[0] = gLeguma1;
-	//char* gNumeLeguma2 = new char[strlen("Vanata") + 1];
-	//strcpy_s(gNumeLeguma2, strlen("Vanata") + 1, "Vanata");
-	//Leguma gLeguma2(101, gNumeLeguma2, "anuala", 1, 6.9, 35);
-	////legume[1] = gLeguma2;
-	//Leguma* legume2 = new Leguma[2]{ gLeguma1, gLeguma2 };
-	//Gradina g2(2, "Ion Popescu", 5, 7, 2, legume2);
-	//cout << g2 << endl;
-	//if (gNumeLeguma1 != NULL)
-	//{
-	//	delete[]gNumeLeguma1;
-	//}
-	//if (gNumeLeguma2 != NULL)
-	//{
-	//	delete[]gNumeLeguma2;
-	//}
-	//if (legume2 != NULL)
-	//{
-	//	delete[]legume2;
-	//}
-	//
-	//// Apel set-eri
-	//Gradina g3;
-	//g3.setNumeProprietar("Ionescu Marinela");
-	//g3.setLatimeGradina(25);
-	//g3.setLungimeGradina(35);
-	//int nrLegumeGradina = 1;
-	//Leguma* legume3 = new Leguma[nrLegumeGradina];
-	//for (int i = 0; i < nrLegumeGradina; i++)
-	//{
-	//	cin >> legume3[i];
-	//}
-	//g3.setLegumeGradina(nrLegumeGradina, legume3);
-	//g3.setNrTotalGradini(1107);
-	//cout << endl;
+	// Constructor fara parametri
+	Gradina g1;
+	cout << g1 << endl;
 
-	//// Apel get-eri
-	//cout << g3.getIdGradina() << ". Gradina apartine lui " << g3.getNumeProprietar() << ". Gradina are latimea de " << g3.getLatimeGradina() << " m si lungimea de "
-	//	<< g3.getLungimeGradina() << " m. ";
-	//if (g3.getNrLegumeGradina() != 0)
-	//{
-	//	cout << "In gradina sunt " << g3.getNrLegumeGradina() << " tipuri de legume. Acestea sunt: " << endl;
-	//	for (int i = 0; i < g3.getNrLegumeGradina(); i++)
-	//	{
-	//		cout << g3.getLegume()[i];
-	//	}
-	//}
-	//else
-	//{
-	//	cout << "In gradina sunt nu sunt legume. ";
-	//}
-	//cout << "In total, in judetul Ilfov sunt " << Gradina::getNrTotalGradini() << " gradini.";
-	//cout << endl;
+	// Constructor cu parametri
+	Flora** legume2 = new Flora * [2];
+	string* tipLeguma2 = new string[2]{ "Leguma", "LegumaRadacinoasa" };
+	legume2[0] = new Leguma(200, (char*)"Ceapa", "bienala", 1, 6.5, 30);
+	legume2[1] = new LegumaRadacinoasa(201, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
+	Gradina g2(2, "Ion Popescu", 5, 7, 2, tipLeguma2, legume2);
+	cout << g2 << endl;
+	for (int i = 0; i < 2; i++) {
+		if (legume2[i]) {
+			delete[]legume2[i];
+		}
+	}
+	if (legume2) {
+		delete[]legume2;
+	}
+	if (tipLeguma2) {
+		delete[]tipLeguma2;
+	}
 
-	//// Operatorul >> si operatorul <<
-	//Gradina g4;
-	//cin >> g4;
-	//cout << g4 << endl;
+	// Apel set-eri
+	Gradina g3;
+	g3.setNumeProprietar("Ionescu Marinela");
+	g3.setLatimeGradina(25);
+	g3.setLungimeGradina(35);
+	int nrLegumeGradina = 2;
+	Flora** legume3 = new Flora * [nrLegumeGradina];
+	string* tipLeguma3 = new string[nrLegumeGradina]{ "Leguma", "LegumaRadacinoasa" };
+	legume3[0] = new Leguma();
+	legume3[1] = new LegumaRadacinoasa();
+	g3.setLegumeGradina(nrLegumeGradina, legume3, tipLeguma3);
+	g3.setNrTotalGradini(1107);
+	cout << endl;
+	if (tipLeguma3) {
+		delete[]tipLeguma3;
+	}
+	for (int i = 0; i < 2; i++) {
+		if (legume3[i]) {
+			delete[]legume3[i];
+		}
+	}
+	if (legume3 != NULL) {
+		delete[]legume3;
+	}
 
-	//// Operatorul =
-	//g2 = g4;
-	//cout << g2 << endl << endl;
+	// Apel get-eri
+	cout << g3.getIdGradina() << ". Gradina apartine lui " << g3.getNumeProprietar() << ". Gradina are latimea de " << g3.getLatimeGradina() << " m si lungimea de "
+		<< g3.getLungimeGradina() << " m. ";
+	if (g3.getNrLegumeGradina() != 0) {
+		cout << "In gradina sunt " << g3.getNrLegumeGradina() << " tipuri de legume. Acestea sunt: " << endl;
+		Flora** legume = g3.getLegumeGradina();
+		for (int i = 0; i < g3.getNrLegumeGradina(); i++) {
+			legume[i]->afiseaza();
+		}
+	}
+	else {
+		cout << "In gradina sunt nu sunt legume. ";
+	}
+	cout << "In total, in judetul Ilfov sunt " << Gradina::getNrTotalGradini() << " gradini.";
+	cout << endl;
+	
+	// Operatorul >> si operatorul <<
+	Gradina g4;
+	cin >> g4;
+	cout << g4 << endl;
 
-
-	////// FAZA 6
-	//cout << "**** FAZA 6 ****" << endl << endl;
-
-	//// Scriere in fisier text - clasa CEREALA	
-	//char* numeC8;
-	//numeC8 = new char[strlen("Orez") + 1];
-	//strcpy_s(numeC8, strlen("Orez") + 1, "Orez");
-	//Cereala c8(103, numeC8, "comun", 120, 1, 27);
-	//ofstream fisierCereala1("Cereale.txt", ios::trunc);
-	//fisierCereala1 << c8;
-	//fisierCereala1.close();
-	//if (numeC8 != NULL)
-	//{
-	//	delete[]numeC8;
-	//}
-
-	//// Citire din fisier text - clasa CEREALA	
-	//Cereala c9;
-	//ifstream fisierCereala2("Cereale.txt", ios::in);
-	//fisierCereala2 >> c9;
-	//cout << c9 << endl;
-	//fisierCereala2.close();
-
-	//// Scriere in fisier text - clasa LEGUMA	
-	//char* numeL9;
-	//numeL9 = new char[strlen("Castravete") + 1];
-	//strcpy_s(numeL9, strlen("Castravete") + 1, "Castravete");
-	//Leguma l9(103, numeL9, "anuala", 0, 6.1, 20);
-	//ofstream fisierLeguma1("Legume.txt", ios::trunc);
-	//fisierLeguma1 << l9;
-	//fisierLeguma1.close();
-	//if (numeL9 != NULL)
-	//{
-	//	delete[]numeL9;
-	//}
-
-	//// Citire din fisier text - clasa LEGUMA	
-	//Leguma l10;
-	//ifstream fisierLeguma2("Legume.txt", ios::in);
-	//fisierLeguma2 >> l10;
-	//cout << l10 << endl;
-	//fisierLeguma2.close();
-
-	//// Scriere in fisier binar - clasa Pom
-	//int nrSoiuri9 = 2;
-	//string* soiuri9 = new string[nrSoiuri9];
-	//soiuri9[0] = "Amiral";
-	//soiuri9[1] = "Elmar";
-	//Pom p9(103, "Cais", 2.1, 1, 2, soiuri9);
-	//fstream fisierPom1("Pomi.txt", ios::out | ios::binary);
-	//p9.scriereInFisierBinar(fisierPom1);
-	//fisierPom1.close();
-	//if (soiuri9 != NULL)
-	//{
-	//	delete[]soiuri9;
-	//}
-
-	//// Citire din fisier binar - clasa Pom
-	//Pom p10;
-	//fstream fisierPom2("Pomi.txt", ios::in | ios::binary);
-	//p10.citireDinFisierBinar(fisierPom2);
-	//cout << p10 << endl;
-	//fisierPom2.close();
-
-	//// Scriere in fisier binar - clasa Gradina
-	//char* gNumeLeguma3 = new char[strlen("Ardei") + 1];;
-	//strcpy_s(gNumeLeguma3, strlen("Ardei") + 1, "Ardei");
-	//Leguma gLeguma3(100, gNumeLeguma3, "anuala", 0, 6.5, 20);
-	//char* gNumeLeguma4 = new char[strlen("Vanata") + 1];
-	//strcpy_s(gNumeLeguma4, strlen("Vanata") + 1, "Vanata");
-	//Leguma gLeguma4(101, gNumeLeguma4, "anuala", 1, 6.9, 35);
-	//Leguma* legume4 = new Leguma[2];
-	//legume4[0] = gLeguma3;
-	//legume4[1] = gLeguma4;
-	//Gradina g5(2, "Ion Popescu", 5, 7, 2, legume4);
-	//if (gNumeLeguma3 != NULL)
-	//{
-	//	delete[]gNumeLeguma3;
-	//}
-	//if (gNumeLeguma4 != NULL)
-	//{
-	//	delete[]gNumeLeguma4;
-	//}
-	//if (legume4 != NULL)
-	//{
-	//	delete[]legume4;
-	//}
-	//fstream fisierGradina("Gradini.txt", ios::out | ios::binary);
-	//g5.scriereInFisierBinar(fisierGradina);
-	//fisierGradina.close();
-
-	//// Citire din fisier binar - clasa Gradina
-	//Gradina g6;
-	//fstream fisierGradina2("Gradini.txt", ios::in | ios::binary);
-	//g6.citireDinFisierBinar(fisierGradina2);
-	//cout << g6 << endl;
-	//fisierGradina2.close();
+	// Operatorul =
+	g2 = g4;
+	cout << g2 << endl << endl << endl;
 
 
-	////// FAZA 7
-	//cout << "**** FAZA 7 ****" << endl << endl;
-	//
-	//// Clasa CerealaDietetica, clasa care mosteneste clasa Cereala
-	//// Constructor fara parametri
-	//CerealaDietetica cD1;
-	//cout << cD1 << endl;
+	//// FAZA 6
+	cout << "***** FAZA 6 *****" << endl << endl << endl;
 
-	//// Constructor cu parametri
-	//char* numeC9 = new char[strlen("Ovaz") + 1];
-	//strcpy_s(numeC9, strlen("Ovaz") + 1, "Ovaz");
-	//char* continent1 = new char[strlen("Europa") + 1];
-	//strcpy_s(continent1, strlen("Europa") + 1, "Europa");
-	//CerealaDietetica cD2(200, numeC9, "obisnuit", 110, 1, 25, continent1, 246, 10, 0);
-	//cout << cD2 << endl;
-	//if (continent1)
-	//{
-	//	delete[]continent1;
-	//}
-	//if (numeC9)
-	//{
-	//delete[]numeC9;
-	//}
+	// Scriere in fisier text - clasa CEREALA	
+	char* numeC8;
+	numeC8 = new char[strlen("Orez") + 1];
+	strcpy_s(numeC8, strlen("Orez") + 1, "Orez");
+	char* categorieP4 = new char[strlen("monocotiledonata") + 1];
+	strcpy_s(categorieP4, strlen("monocotiledonata") + 1, "monocotiledonata");
+	Cereala c8(103, numeC8, "comun", 120, 1, 27, categorieP4);
+	ofstream fisierCereala1("Cereale.txt", ios::trunc);
+	fisierCereala1 << c8;
+	fisierCereala1.close();
+	if (numeC8 != NULL) {
+		delete[]numeC8;
+	}
+	if (categorieP4) {
+		delete[]categorieP4;
+	}
 
-	//// Constructor de copiere
-	//CerealaDietetica cD3 = cD2;
-	//cout << cD3 << endl;
+	// Citire din fisier text - clasa CEREALA	
+	Cereala c9;
+	ifstream fisierCereala2("Cereale.txt", ios::in);
+	fisierCereala2 >> c9;
+	cout << c9 << endl;
+	fisierCereala2.close();
 
-	//// Operator = 
-	//cD1 = cD2;
-	//cout << cD1 << endl;
+	// Scriere in fisier text - clasa LEGUMA	
+	char* numeL9;
+	numeL9 = new char[strlen("Castravete") + 1];
+	strcpy_s(numeL9, strlen("Castravete") + 1, "Castravete");
+	Leguma l9(103, numeL9, "anuala", 0, 6.1, 20);
+	ofstream fisierLeguma1("Legume.txt", ios::trunc);
+	fisierLeguma1 << l9;
+	fisierLeguma1.close();
+	if (numeL9 != NULL) {
+		delete[]numeL9;
+	}
 
-	//// Apel set-eri
-	//char* continent2 = new char[strlen("Africa") + 1];
-	//strcpy_s(continent2, strlen("Africa") + 1, "Africa");
-	//cD1.setContinentOrigine(continent2);
-	//cD1.setCalorii(300);
-	//cD1.setFibre(12);
-	//cD1.setAreGluten(1);
-	//if (continent2)
-	//{
-	//	delete[]continent2;
-	//}
-	//
-	//// Apel get-eri
-	//cout << cD1.getContinentOrigine() << endl;
-	//cout << cD1.getCalorii() << endl;
-	//cout << cD1.getFibre() << endl;
-	//cout << cD1.getAreGluten() << endl << endl;
+	// Citire din fisier text - clasa LEGUMA	
+	Leguma l10;
+	ifstream fisierLeguma2("Legume.txt", ios::in);
+	fisierLeguma2 >> l10;
+	cout << l10 << endl;
+	fisierLeguma2.close();
 
-	//// Upcasting
-	//CerealaDietetica cD4;
-	//Cereala c10 = cD4;
-	//cout << c10;
+	// Scriere in fisier binar - clasa Pom
+	int nrSoiuri9 = 2;
+	string* soiuri9 = new string[nrSoiuri9];
+	soiuri9[0] = "Amiral";
+	soiuri9[1] = "Elmar";
+	Pom p9(103, "Cais", 2.1, 1, 2, soiuri9);
+	fstream fisierPom1("Pomi.txt", ios::out | ios::binary);
+	p9.scrieInFisierBinar(fisierPom1);
+	fisierPom1.close();
+	if (soiuri9 != NULL) {
+		delete[]soiuri9;
+	}
 
-	////// Clasa LegumaRadacinoasa, clasa care mosteneste clasa Leguma	
-	//// Constructor fara parametri
-	//LegumaRadacinoasa lR1;
-	//cout << lR1 << endl;
+	// Citire din fisier binar - clasa Pom
+	Pom p10;
+	fstream fisierPom2("Pomi.txt", ios::in | ios::binary);
+	p10.citesteDinFisierBinar(fisierPom2);
+	cout << p10 << endl;
+	fisierPom2.close();
 
-	//// Constructor cu parametri
-	//char* numeL10 = new char[strlen("Ridiche") + 1];
-	//strcpy_s(numeL10, strlen("Ridiche") + 1, "Ridiche");
-	//char* anotimp1 = new char[strlen("primavara") + 1];
-	//strcpy_s(anotimp1, strlen("primavara") + 1, "primavara");
-	//LegumaRadacinoasa lR2(200, numeL10, "anuala", 0, 6.2, 10, anotimp1, "rosie", 3, 6);
-	//cout << lR2 << endl;
-	//if (numeL10)
-	//{
-	//	delete[]numeL10;
-	//}
-	//if (anotimp1)
-	//{
-	//	delete[]anotimp1;
-	//}
+	// Scriere in fisier binar - clasa Gradina
+	Flora** legume4 = new Flora * [2];
+	string* tipLeguma4 = new string[2]{ "Leguma", "LegumaRadacinoasa" };
+	legume4[0] = new Leguma(200, (char*)"Ceapa", "bienala", 1, 6.5, 30);
+	legume4[1] = new LegumaRadacinoasa(201, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
+	Gradina g5(2, "Ion Popescu", 5, 7, 2, tipLeguma4, legume4);
+	cout << g5<< endl;
+	for (int i = 0; i < 2; i++) {
+		if (legume4[i]) {
+			delete[]legume4[i];
+		}
+	}
+	if (legume4) {
+		delete[]legume4;
+	}
+	if (tipLeguma4) {
+		delete[]tipLeguma4;
+	}
+	fstream fisierGradina("Gradini.txt", ios::out | ios::binary);
+	g5.scrieInFisierBinar(fisierGradina);
+	fisierGradina.close();
 
-	//// Constructor de copiere
-	//LegumaRadacinoasa lR3 = lR2;
-	//cout << lR3 << endl;
+	// Citire din fisier binar - clasa Gradina
+	Gradina g6;
+	fstream fisierGradina2("Gradini.txt", ios::in | ios::binary);
+	g6.citesteDinFisierBinar(fisierGradina2);
+	cout << g6 << endl << endl << endl;
+	fisierGradina2.close();
 
-	//// Operator =
-	//lR1 = lR2;
-	//cout << lR1 << endl;
 
-	//// Apel set-eri
-	//char* anotimp2 = new char[strlen("vara") + 1];
-	//strcpy_s(anotimp2, strlen("vara") + 1, "vara");
-	//lR1.setAnotimpCultivare(anotimp2);
-	//lR1.setCuloare("alba");
-	//lR1.setGreutateMedie(7);
-	//lR1.setAdancimeCultivare(3);
-	//if (anotimp2)
-	//{
-	//	delete[]anotimp2;
-	//}
+	//// FAZA 7
+	cout << "***** FAZA 7 *****" << endl << endl << endl;
+	
+	// Clasa CerealaDietetica, clasa care mosteneste clasa Cereala
+	// Constructor fara parametri
+	CerealaDietetica cD1;
+	cout << cD1 << endl;
 
-	//// Apel get-eri
-	//cout << lR1.getAnotimpCultivare() << endl;
-	//cout << lR1.getCuloare() << endl;
-	//cout << lR1.getGreutateMedie() << endl;
-	//cout << lR1.getAdancimeCultivare() << endl;
+	// Constructor cu parametri
+	char* numeC9 = new char[strlen("Ovaz") + 1];
+	strcpy_s(numeC9, strlen("Ovaz") + 1, "Ovaz");
+	char* continent1 = new char[strlen("Europa") + 1];
+	strcpy_s(continent1, strlen("Europa") + 1, "Europa");
+	char* categorieP5 = new char[strlen("monocotiledonata") + 1];
+	strcpy_s(categorieP5, strlen("monocotiledonata") + 1, "monocotiledonata");
+	CerealaDietetica cD2(200, numeC9, "obisnuit", 110, 1, 25, continent1, 246, 10, 0, categorieP5);
+	cout << cD2 << endl;
+	if (continent1) {
+		delete[]continent1;
+	}
+	if (numeC9) {
+	delete[]numeC9;
+	}
+	if (categorieP5) {
+		delete[]categorieP5;
+	}
+
+	// Constructor de copiere
+	CerealaDietetica cD3 = cD2;
+	cout << cD3 << endl;
+
+	// Operator = 
+	cD1 = cD2;
+	cout << cD1 << endl;
+
+	// Apel set-eri
+	char* continent2 = new char[strlen("Africa") + 1];
+	strcpy_s(continent2, strlen("Africa") + 1, "Africa");
+	cD1.setContinentOrigine(continent2);
+	cD1.setCalorii(300);
+	cD1.setFibre(12);
+	cD1.setAreGluten(1);
+	if (continent2) {
+		delete[]continent2;
+	}
+	
+	// Apel get-eri
+	cout << cD1.getContinentOrigine() << endl;
+	cout << cD1.getCalorii() << endl;
+	cout << cD1.getFibre() << endl;
+	cout << cD1.getAreGluten() << endl << endl;
+
+	// Upcasting
+	CerealaDietetica cD4;
+	Cereala c10 = cD4;
+	cout << c10;
+
+	//// Clasa LegumaRadacinoasa, clasa care mosteneste clasa Leguma	
+	// Constructor fara parametri
+	LegumaRadacinoasa lR1;
+	cout << lR1 << endl;
+
+	// Constructor cu parametri
+	LegumaRadacinoasa lR2(200, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
+	cout << lR2 << endl;
+
+	// Constructor de copiere
+	LegumaRadacinoasa lR3 = lR2;
+	cout << lR3 << endl;
+
+	// Operator =
+	lR1 = lR2;
+	cout << lR1 << endl;
+	// Este problema la dezalocarea memoriei pt lR1, doar atunci cand se face 
+	//atribuirea de mai sus.
+
+	// Apel set-eri
+	lR1.setAnotimpCultivare((char*)"vara");
+	lR1.setCuloare("alba");
+	lR1.setGreutateMedie(7);
+	lR1.setAdancimeCultivare(3);
+
+	// Apel get-eri
+	cout << lR1.getAnotimpCultivare() << endl;
+	cout << lR1.getCuloare() << endl;
+	cout << lR1.getGreutateMedie() << endl;
+	cout << lR1.getAdancimeCultivare() << endl << endl << endl;
+
 
 	//// FAZA 8
-	cout << "**** FAZA 8 ****" << endl << endl;
+	cout << "***** FAZA 8 *****" << endl << endl << endl;
 	
 	Planta** planta = new Planta*[10];
 
@@ -2478,8 +2407,7 @@ void main()
 	numeC10 = new char[strlen("Porumb") + 1];
 	strcpy_s(numeC10, strlen("Porumb") + 1, "Porumb");
 	planta[1] = new Cereala(numeC10, "dulce", 1);
-	if (numeC10 != NULL)
-	{
+	if (numeC10 != NULL) {
 		delete[]numeC10;
 	}
 
@@ -2489,18 +2417,16 @@ void main()
 
 	char* numeC11 = new char[strlen("Ovaz") + 1];
 	strcpy_s(numeC11, strlen("Ovaz") + 1, "Ovaz");
-	char* continent2 = new char[strlen("Europa") + 1];
-	strcpy_s(continent2, strlen("Europa") + 1, "Europa");
-	char* categorieP1 = new char[strlen("monocotiledonata") + 1];
-	strcpy_s(categorieP1, strlen("monocotiledonata") + 1, "monocotiledonata");
-	planta[4] = new CerealaDietetica(200, numeC11, "obisnuit", 110, 1, 25, continent2, 246, 10, 0, categorieP1);
-	if (continent2)
-	{
-		delete[]continent2;
+	char* continent3 = new char[strlen("Europa") + 1];
+	strcpy_s(continent3, strlen("Europa") + 1, "Europa");
+	char* categorieP6 = new char[strlen("monocotiledonata") + 1];
+	strcpy_s(categorieP6, strlen("monocotiledonata") + 1, "monocotiledonata");
+	planta[4] = new CerealaDietetica(200, numeC11, "obisnuit", 110, 1, 25, continent3, 246, 10, 0, categorieP6);
+	if (continent3) {
+		delete[]continent3;
 	}
-	if (categorieP1)
-	{
-		delete[]categorieP1;
+	if (categorieP6) {
+		delete[]categorieP6;
 	}
 
 	planta[5] = new CerealaDietetica();
@@ -2508,16 +2434,14 @@ void main()
 	char* numeC12;
 	numeC12 = new char[strlen("Secara") + 1];
 	strcpy_s(numeC12, strlen("Secara") + 1, "Secara");
-	char* categorieP2 = new char[strlen("monocotiledonata") + 1];
-	strcpy_s(categorieP2, strlen("monocotiledonata") + 1, "monocotiledonata");
-	planta[6] = new Cereala(2, numeC12, "comuna", 100, 1, 25, categorieP2);
-	if (numeC12 != NULL)
-	{
+	char* categorieP7 = new char[strlen("monocotiledonata") + 1];
+	strcpy_s(categorieP7, strlen("monocotiledonata") + 1, "monocotiledonata");
+	planta[6] = new Cereala(2, numeC12, "comuna", 100, 1, 25, categorieP7);
+	if (numeC12 != NULL) {
 		delete[]numeC12;
 	}
-	if (categorieP2)
-	{
-		delete[]categorieP2;
+	if (categorieP7) {
+		delete[]categorieP7;
 	}
 
 	planta[7] = new CerealaDietetica();
@@ -2525,26 +2449,45 @@ void main()
 	char* numeC13;
 	numeC13 = new char[strlen("Orz") + 1];
 	strcpy_s(numeC13, strlen("Orz") + 1, "Orz");
-	char* categorieP3 = new char[strlen("monocotiledonata") + 1];
-	strcpy_s(categorieP3, strlen("monocotiledonata") + 1, "monocotiledonata");
-	planta[8] = new Cereala(2, numeC13, "comun", 100, 1, 25, categorieP3);
-	if (numeC13 != NULL)
-	{
+	char* categorieP8 = new char[strlen("monocotiledonata") + 1];
+	strcpy_s(categorieP8, strlen("monocotiledonata") + 1, "monocotiledonata");
+	planta[8] = new Cereala(2, numeC13, "comun", 100, 1, 25, categorieP8);
+	if (numeC13 != NULL) {
 		delete[]numeC13;
 	}
-	if (categorieP3)
-	{
-		delete[]categorieP3;
+	if (categorieP8) {
+		delete[]categorieP8;
 	}
 
 	planta[9] = new Cereala();
 
-	for (int i = 0; i < 10; i++)
-	{
-		planta[i]->afisarePlanta();
+	for (int i = 0; i < 10; i++) {
+		planta[i]->afiseazaPlanta();
 		cout << endl;
 	}
+	cout << endl << endl;
 
-	
-	
+
+	string* tipLeguma5 = new string[10];
+	Flora** legume5 = new Flora * [10];
+	for (int i = 0; i < 10; i += 2) {
+		tipLeguma5[i] = "Leguma";
+		legume5[i] = new Leguma();
+		tipLeguma5[i + 1] = "LegumaRadacinoasa";
+		legume5[i + 1] = new LegumaRadacinoasa();
+	}
+	Gradina g8(300, "Daniel Pop", 8, 9, 10, tipLeguma5, legume5);
+	cout << g8 << endl;
+	if (tipLeguma5) {
+		delete[]tipLeguma5;
+	}
+	for (int i = 0; i < 10; i++) {
+		if (legume5[i]) {
+			delete[]legume5[i];
+		}
+	}
+	if (legume5) {
+		delete[]legume5;
+	}
+
 }
