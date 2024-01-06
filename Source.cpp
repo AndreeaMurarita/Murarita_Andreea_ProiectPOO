@@ -505,7 +505,7 @@ public:
 			? "Aceasta este rezistenta la seceta. " : "Aceasta nu este rezistenta la seceta. ");
 		cout << "PH-ul solului in care este cultivata planta trebuie sa fie " << this->pHSol;
 		cout << ". Pentru ca planta sa se poata dezvolta, este nevoie de o distanta de " << this->distantaIntrePlante << " cm, intre plante. ";
-		cout << "In lume se estimeaza a fi undeva pe la " << this->nrTotalSpecii << " de soiuri de plante." << endl;
+		cout << "In lume se estimeaza a fi undeva pe la " << this->nrTotalSpecii << " de soiuri de plante." << endl << endl;
 	}
 
 	Leguma() : id(1) {
@@ -804,7 +804,7 @@ public:
 		cout << "Leguma se cultiva in anotimpul " << this->anotimpCultivare;
 		cout << ". Leguma are culoarea " << this->culoare;
 		cout << ". Adancimea optima de cultivare este de " << this->adancimeCultivare << " cm. ";
-		cout << "In medie, aceasta leguma are greutatea de " << this->greutateMedie << " grame." << endl;
+		cout << "In medie, aceasta leguma are greutatea de " << this->greutateMedie << " grame." << endl << endl;
 	}
 
 
@@ -996,15 +996,9 @@ public:
 		this->numeProprietar = "Fara Proprietar";
 		this->latimeGradina = 0;
 		this->lungimeGradina = 0;
-		this->nrLegumeGradina = 3;
-		this->tipLeguma = new string[this->nrLegumeGradina];
-		this->legume = new Flora * [this->nrLegumeGradina];
-		this->legume[0] = new Leguma();
-		this->tipLeguma[0] = "Leguma";
-		this->legume[1] = new LegumaRadacinoasa();
-		this->tipLeguma[1] = "LegumaRadacinoasa";
-		this->legume[2] = new Leguma();
-		this->tipLeguma[2] = "Leguma";
+		this->nrLegumeGradina = 0;
+		this->tipLeguma = NULL;
+		this->legume = NULL;
 	}
 
 	Gradina(int idGradinaNou, string numeProprietar, float latimeGradina, float lungimeGradina, int nrLegumeGradina, string* tipLeguma, Flora** legume) :idGradina(idGradinaNou) {
@@ -1067,12 +1061,12 @@ public:
 	}
 
 	~Gradina() {
-		for (int i = 0; i < this->nrLegumeGradina; i++) {
-			if (this->legume[i]) {
-				delete[]legume[i];
-			}
-		}
 		if (this->legume) {
+			for (int i = 0; i < this->nrLegumeGradina; i++) {
+				if (this->legume[i]) {
+					delete legume[i];
+				}
+			}
 			delete[]this->legume;
 		}
 		if (this->tipLeguma) {
@@ -1128,12 +1122,12 @@ public:
 
 	void setLegumeGradina(int nrLegumeGradina, Flora** legume, string* tipLeguma) {
 		if (nrLegumeGradina > 0) {
-			for (int i = 0; i < this->nrLegumeGradina; i++) {
-				if (this->legume[i]) {
-					delete[]this->legume[i];
-				}
-			}
 			if (this->legume) {
+				for (int i = 0; i < this->nrLegumeGradina; i++) {
+					if (this->legume[i]) {
+						delete this->legume[i];
+					}
+				}
 				delete[]this->legume;
 			}
 			if (this->tipLeguma) {
@@ -1172,12 +1166,12 @@ public:
 			this->latimeGradina = g.latimeGradina;
 			this->lungimeGradina = g.lungimeGradina;
 			this->nrLegumeGradina = g.nrLegumeGradina;
-			for (int i = 0; i < this->nrLegumeGradina; i++) {
-				if (this->legume[i]) {
-					delete[]legume[i];
-				}
-			}
 			if (this->legume) {
+				for (int i = 0; i < this->nrLegumeGradina; i++) {
+					if (this->legume[i]) {
+						delete legume[i];
+					}
+				}
 				delete[]this->legume;
 			}
 
@@ -1195,7 +1189,6 @@ public:
 					}
 					else {
 						this->legume[i] = new LegumaRadacinoasa();
-
 					}
 					*(this->legume[i]) = *(g.legume[i]);
 				}
@@ -1209,6 +1202,17 @@ public:
 	}
 
 	friend istream& operator>>(istream& in, Gradina& g) {
+		if (g.legume != NULL) {
+			for (int i = 0; i < g.nrLegumeGradina; i++) {
+				if (g.legume[i]) {
+					delete g.legume[i];
+				}
+			}
+			delete[]g.legume;
+		}
+		if (g.tipLeguma) {
+			delete[]g.tipLeguma;
+		}
 		cout << "Numele proprietarului este: ";
 		char aux[100];
 		in.getline(aux, 100);
@@ -1219,12 +1223,9 @@ public:
 		in >> g.lungimeGradina;
 		cout << "Numarul de legume din gradina este: ";
 		in >> g.nrLegumeGradina;
-		if (g.legume != NULL) {
-			delete[]g.legume;
-		}
 		if (g.nrLegumeGradina > 0) {
-			string* tipLeguma = new string[g.nrLegumeGradina];
-			Flora** legume = new Flora * [g.nrLegumeGradina];
+			g.tipLeguma = new string[g.nrLegumeGradina];
+			g.legume = new Flora * [g.nrLegumeGradina];
 			string tip;
 			for (int i = 0; i < g.nrLegumeGradina; i++) {
 				cout << "Tipul legumei " << i + 1 << ": (Leguma / LegumaRadacinoasa) ";
@@ -1234,14 +1235,14 @@ public:
 					i--;
 				}
 				else {
-					tipLeguma[i] = tip;
-					if (tipLeguma[i] == "Leguma") {
+					g.tipLeguma[i] = tip;
+					if (g.tipLeguma[i] == "Leguma") {
 						g.legume[i] = new Leguma();
 						cout << "Leguma " << i + 1 << ": ";
 						g.legume[i]->citeste();
 					}
 					else {
-						if (tip == "LegumaRadacinoasa") {
+						if (g.tipLeguma[i] == "LegumaRadacinoasa") {
 							g.legume[i] = new LegumaRadacinoasa();
 							cout << "Leguma (radacinoasa) " << i + 1 << ": ";
 							g.legume[i]->citeste();
@@ -1305,10 +1306,10 @@ public:
 	}
 
 	void citesteDinFisierBinar(fstream& f) {
-		for (int i = 0; i < this->nrLegumeGradina; i++) {
-			delete[]this->legume[i];
-		}
 		if (this->legume) {
+			for (int i = 0; i < this->nrLegumeGradina; i++) {
+				delete this->legume[i];
+			}
 			delete[]this->legume;
 		}
 		if (this->tipLeguma) {
@@ -2148,12 +2149,12 @@ void main() {
 	legume2[1] = new LegumaRadacinoasa(201, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
 	Gradina g2(2, "Ion Popescu", 5, 7, 2, tipLeguma2, legume2);
 	cout << g2 << endl;
-	for (int i = 0; i < 2; i++) {
-		if (legume2[i]) {
-			delete[]legume2[i];
-		}
-	}
 	if (legume2) {
+		for (int i = 0; i < 2; i++) {
+			if (legume2[i]) {
+				delete legume2[i];
+			}
+		}
 		delete[]legume2;
 	}
 	if (tipLeguma2) {
@@ -2176,12 +2177,12 @@ void main() {
 	if (tipLeguma3) {
 		delete[]tipLeguma3;
 	}
-	for (int i = 0; i < 2; i++) {
-		if (legume3[i]) {
-			delete[]legume3[i];
-		}
-	}
 	if (legume3 != NULL) {
+		for (int i = 0; i < 2; i++) {
+			if (legume3[i]) {
+				delete legume3[i];
+			}
+		}
 		delete[]legume3;
 	}
 
@@ -2284,12 +2285,12 @@ void main() {
 	legume4[1] = new LegumaRadacinoasa(201, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
 	Gradina g5(2, "Ion Popescu", 5, 7, 2, tipLeguma4, legume4);
 	cout << g5<< endl;
-	for (int i = 0; i < 2; i++) {
-		if (legume4[i]) {
-			delete[]legume4[i];
-		}
-	}
 	if (legume4) {
+		for (int i = 0; i < 2; i++) {
+			if (legume4[i]) {
+				delete legume4[i];
+			}
+		}
 		delete[]legume4;
 	}
 	if (tipLeguma4) {
@@ -2481,13 +2482,12 @@ void main() {
 	if (tipLeguma5) {
 		delete[]tipLeguma5;
 	}
-	for (int i = 0; i < 10; i++) {
-		if (legume5[i]) {
-			delete[]legume5[i];
-		}
-	}
 	if (legume5) {
+		for (int i = 0; i < 10; i++) {
+			if (legume5[i]) {
+				delete legume5[i];
+			}
+		}
 		delete[]legume5;
 	}
-
 }
