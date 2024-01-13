@@ -2284,7 +2284,7 @@ void main() {
 	legume4[0] = new Leguma(200, (char*)"Ceapa", "bienala", 1, 6.5, 30);
 	legume4[1] = new LegumaRadacinoasa(201, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
 	Gradina g5(2, "Ion Popescu", 5, 7, 2, tipLeguma4, legume4);
-	cout << g5<< endl;
+	cout << g5 << endl;
 	if (legume4) {
 		for (int i = 0; i < 2; i++) {
 			if (legume4[i]) {
@@ -2381,8 +2381,6 @@ void main() {
 	// Operator =
 	lR1 = lR2;
 	cout << lR1 << endl;
-	// Este problema la dezalocarea memoriei pt lR1, doar atunci cand se face 
-	//atribuirea de mai sus.
 
 	// Apel set-eri
 	lR1.setAnotimpCultivare((char*)"vara");
@@ -2397,9 +2395,25 @@ void main() {
 	cout << lR1.getAdancimeCultivare() << endl << endl << endl;
 
 
+	// Operator>>
+	cin >> lR1;
+	cout << lR1;
+
+	// Scriere in fisier binar 
+	fstream fisierLegumaR1("LegumeRadacinoase.txt", ios::out | ios::binary);
+	lR1.scrieInFisierBinar(fisierLegumaR1);
+	fisierLegumaR1.close();
+
+	// Citire din fisier binar
+	LegumaRadacinoasa lR4;
+	fstream fisierLegumaR2("LegumeRadacinoase.txt", ios::in | ios::binary);
+	lR4.citesteDinFisierBinar(fisierLegumaR2);
+	cout << lR4 << endl << endl << endl;
+
 	//// FAZA 8
 	cout << "***** FAZA 8 *****" << endl << endl << endl;
 	
+	// Vectorul de pointeri la clasa abstracta Planta
 	Planta** planta = new Planta*[10];
 
 	planta[0] = new Cereala();
@@ -2463,20 +2477,23 @@ void main() {
 	planta[9] = new Cereala();
 
 	for (int i = 0; i < 10; i++) {
+		// Late binding
 		planta[i]->afiseazaPlanta();
 		cout << endl;
 	}
 	cout << endl << endl;
 
 
+	// Vectorul de pointeri la clasa abstracta Flora
 	string* tipLeguma5 = new string[10];
 	Flora** legume5 = new Flora * [10];
 	for (int i = 0; i < 10; i += 2) {
 		tipLeguma5[i] = "Leguma";
-		legume5[i] = new Leguma();
+		legume5[i] = new Leguma(2, (char*)"Ceapa", "bienala", 1, 6.5, 30);
 		tipLeguma5[i + 1] = "LegumaRadacinoasa";
-		legume5[i + 1] = new LegumaRadacinoasa();
+		legume5[i + 1] = new LegumaRadacinoasa(200, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
 	}
+	// Late binding in interiorul constructorului
 	Gradina g8(300, "Daniel Pop", 8, 9, 10, tipLeguma5, legume5);
 	cout << g8 << endl;
 	if (tipLeguma5) {
