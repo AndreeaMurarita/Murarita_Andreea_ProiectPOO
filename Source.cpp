@@ -76,6 +76,7 @@ public:
 	virtual void afiseazaPlanta() = 0;
 };
 
+
 class Flora {
 public:
 	virtual void citeste() = 0;
@@ -87,6 +88,7 @@ public:
 	}
 	virtual ~Flora() {}
 };
+
 
 class Cereala :public Planta {
 private:
@@ -327,7 +329,7 @@ istream& operator>>(istream& in, Cereala& c)
 	in >> c.durataPerioadaVegetatie;
 	cout << "Cereala este destinata consumului uman? (0 - NU, 1 - DA) ";
 	in >> c.consumUman;
-	in >> static_cast<Planta&>(c);
+	in >> (Planta&)c;
 	cout << "Care este temperatura optima de coacere pentru acest tip de cereale? (grade Celsius) ";
 	in >> c.temperatura;
 	return in;
@@ -341,7 +343,7 @@ ostream& operator<<(ostream& out, const Cereala& c) {
 	else {
 		out << "Aceasta este de tip furajer. ";
 	}
-	out << static_cast<const Planta&>(c);
+	out << (Planta&)c;
 	out << "Temperatura optima de coacere pentru acest tip de cereale este in jur de " << c.temperatura << " grade Celsius. ";
 	out << "Cantitatea maxima de pesticide admisa in Romania este, in medie, de " << c.cantitateMaximaPesticide << " kg/ha." << endl;
 	return out;
@@ -629,7 +631,7 @@ public:
 	}
 
 	Leguma& operator=(const Flora& f) {
-		const Leguma& l = dynamic_cast<const Leguma&>(f);
+		Leguma& l = (Leguma&)f;
 		if (this != &l) {
 			if (this->nume != NULL) {
 				delete[]nume;
@@ -879,7 +881,7 @@ public:
 	}
 
 	LegumaRadacinoasa& operator=(const Flora& f) {
-		const LegumaRadacinoasa& l = dynamic_cast<const LegumaRadacinoasa&>(f);
+		LegumaRadacinoasa& l = (LegumaRadacinoasa&)f;
 		if (this != &l) {
 			Leguma::operator=(f);
 			if (anotimpCultivare) {
@@ -919,7 +921,7 @@ public:
 	}
 
 	friend istream& operator>>(istream& in, LegumaRadacinoasa& l) {
-		in >> static_cast<Leguma&>(l);
+		in >> (Leguma&)l;
 		cout << "Anotimpul in care se cultiva este: ";
 		in >> l.anotimpCultivare;
 		cout << "Culoarea legumei este: ";
@@ -1719,6 +1721,23 @@ ostream& operator<<(ostream& out, const Pom& p) {
 
 
 void main() {
+
+	// Am realizat doua ierarhii de clase, fiecare dintre ele avand clasa de baza abstracta.
+	// Astfel, clasa abstracta Planta este mostenita de clasa Cereala, care este mostenita
+	// de clasa CerealaDietetica. Cea de-a doua ierarhie este formata tot din 3 nivele, si anume
+	// clasa abstracta Flora este mostenita de clasa Leguma, care este mostenita de clasa
+	// LegumaRadacinoasa. Clasa Gradina se afla in relatie de "has a" cu clasa Flora, 
+	// astfel ca in Gradina am declarat un atribut de tip vector de pointeri la clasa Flora, 
+	// pentru a ma putea lega de clasele care mostenesc clasa Flora in clasa Gradina.
+	// In fiecare clasa exista constructori, destructori (pentru atributele alocate dinamic),
+	// constructor de copiere si operatorul =. De asemenea, am facut getteri si setteri
+	// pentru atributele din zona privata, functii statice pentru atributele statice si am
+	// supraincarcat operatori pentru fiecare clasa, folosing si functii "friend".
+	// In clasele Cereala si Leguma am adaugat operatori care lucreaza cu fisiere text
+	// si in clasele Leguma, LegumaRadacinoasa, Gradina si Pom operatori care lucreaza
+	// cu fisiere binare.
+
+
 	//// FAZA 1
 	cout << "***** FAZA 1 *****" << endl << endl << endl;
 	
@@ -1779,19 +1798,19 @@ void main() {
 	Pom p2(2.3, 1);
 	cout << p2 << endl;
 
-	int nrSoiuri3;
-	cout << "Introduceti numarul de soiuri: ";
-	cin >> nrSoiuri3;
-	string* soiuri3 = new string[nrSoiuri3];
-	for (int i = 0; i < nrSoiuri3; i++) {
-		cout << "Soiul " << i + 1 << ": ";
-		cin >> soiuri3[i];
-	}
-	Pom p3(2, "Par", 1.9, 1, nrSoiuri3, soiuri3);
-	cout << p3 << endl << endl;
-	if (soiuri3 != NULL) {
-		delete[]soiuri3;
-	}
+	//int nrSoiuri3;
+	//cout << "Introduceti numarul de soiuri: ";
+	//cin >> nrSoiuri3;
+	//string* soiuri3 = new string[nrSoiuri3];
+	//for (int i = 0; i < nrSoiuri3; i++) {
+	//	cout << "Soiul " << i + 1 << ": ";
+	//	cin >> soiuri3[i];
+	//}
+	//Pom p3(2, "Par", 1.9, 1, nrSoiuri3, soiuri3);
+	//cout << p3 << endl << endl;
+	//if (soiuri3 != NULL) {
+	//	delete[]soiuri3;
+	//}
 
 
 	//// FAZA 2
@@ -1972,7 +1991,7 @@ void main() {
 	// clasa LEGUMA
 	// Operator = si operator >>
 	Leguma l6;
-	cin >> l6;
+	//cin >> l6;
 	Leguma l7;
 	l7 = l6;
 	cout << l7 << endl;
@@ -2044,95 +2063,95 @@ void main() {
 	//// FAZA 4
 	cout << "***** FAZA 4 *****" << endl << endl << endl;
 	
-	// Vectorul cu obiecte de tipul clasei CEREALA
-	int n1;
-	cout << "Introduceti numarul de cereale: ";
-	cin >> n1;
-	Cereala* cVector = new Cereala[n1];
-	for (int i = 0; i < n1; i++) {
-		cout << "Cereala " << (i + 1) << endl;
-		cin >> cVector[i];
-	}
-	cout << endl;
-	for (int i = 0; i < n1; i++) {
-		cout << "Cereala " << (i + 1) << ":" << endl;
-		cout << cVector[i];
-	}
-	cout << endl;
-	if (cVector != NULL) {
-		delete[]cVector;
-	}
+	//// Vectorul cu obiecte de tipul clasei CEREALA
+	//int n1;
+	//cout << "Introduceti numarul de cereale: ";
+	//cin >> n1;
+	//Cereala* cVector = new Cereala[n1];
+	//for (int i = 0; i < n1; i++) {
+	//	cout << "Cereala " << (i + 1) << endl;
+	//	cin >> cVector[i];
+	//}
+	//cout << endl;
+	//for (int i = 0; i < n1; i++) {
+	//	cout << "Cereala " << (i + 1) << ":" << endl;
+	//	cout << cVector[i];
+	//}
+	//cout << endl;
+	//if (cVector != NULL) {
+	//	delete[]cVector;
+	//}
 
-	// Vectorul cu obiecte de tipul clasei LEGUMA
-	int n2;
-	cout << "Introduceti numarul de legume: ";
-	cin >> n2;
-	Leguma* lVector = new Leguma[n2];
-	for (int i = 0; i < n2; i++) {
-		cout << "Leguma " << (i + 1) << endl;
-		cin >> lVector[i];
-	}
-	cout << endl;
-	for (int i = 0; i < n2; i++) {
-		cout << "Leguma " << (i + 1) << ":" << endl;
-		cout << lVector[i];
-	} 
-	cout << endl;
-	if (lVector) {
-		delete[]lVector;
-	}
+	//// Vectorul cu obiecte de tipul clasei LEGUMA
+	//int n2;
+	//cout << "Introduceti numarul de legume: ";
+	//cin >> n2;
+	//Leguma* lVector = new Leguma[n2];
+	//for (int i = 0; i < n2; i++) {
+	//	cout << "Leguma " << (i + 1) << endl;
+	//	cin >> lVector[i];
+	//}
+	//cout << endl;
+	//for (int i = 0; i < n2; i++) {
+	//	cout << "Leguma " << (i + 1) << ":" << endl;
+	//	cout << lVector[i];
+	//} 
+	//cout << endl;
+	//if (lVector) {
+	//	delete[]lVector;
+	//}
 
-	// Vectorul cu obiecte de tipul clasei POM
-	int n3;
-	cout << "Introduceti numarul de pomi: ";
-	cin >> n3;
-	Pom* pVector = new Pom[n3];
-	for (int i = 0; i < n3; i++) {
-		cout << "Pomul " << (i + 1) << endl;
-		cin >> pVector[i];
-	}
-	cout << endl;
-	for (int i = 0; i < n3; i++) {
-		cout << "Pomul " << (i + 1) << ":" << endl;
-		cout << pVector[i];
-	}
-	cout << endl;
-	if (pVector != NULL) {
-		delete[]pVector;
-	}
+	//// Vectorul cu obiecte de tipul clasei POM
+	//int n3;
+	//cout << "Introduceti numarul de pomi: ";
+	//cin >> n3;
+	//Pom* pVector = new Pom[n3];
+	//for (int i = 0; i < n3; i++) {
+	//	cout << "Pomul " << (i + 1) << endl;
+	//	cin >> pVector[i];
+	//}
+	//cout << endl;
+	//for (int i = 0; i < n3; i++) {
+	//	cout << "Pomul " << (i + 1) << ":" << endl;
+	//	cout << pVector[i];
+	//}
+	//cout << endl;
+	//if (pVector != NULL) {
+	//	delete[]pVector;
+	//}
 
-	//Matrice cu obiecte de tipul clasei CEREALA
-	int linii, coloane;
-	cout << "Introduceti numarul de linii: ";
-	cin >> linii;
-	cout << "Introduceti numarul de coloane: ";
-	cin >> coloane;
-	Cereala** cMatrice = new Cereala * [linii];
-	for (int i = 0; i < linii; i++) {
-		cMatrice[i] = new Cereala[coloane];
-	}
-	for (int i = 0; i < linii; i++) {
-		for (int j = 0; j < coloane; j++) {
-			cout << "Cereala" << i+1 << j+1 << " este: ";
-			cin >> cMatrice[i][j];
-		}
-	}
-	cout << endl;
-	for (int i = 0; i < linii; i++) {
-		for (int j = 0; j < coloane; j++) {
-			cout << "Obiectul " << (i + 1) << (j + 1) << ":" << endl;
-			cout << cMatrice[i][j];
-		}
-	}
-	cout << endl << endl;
-	for (int i = 0; i < linii; i++) {
-		if (cMatrice[i] != NULL) {
-			delete[]cMatrice[i];
-		}
-	}
-	if (cMatrice != NULL) {
-		delete[]cMatrice;
-	}
+	////Matrice cu obiecte de tipul clasei CEREALA
+	//int linii, coloane;
+	//cout << "Introduceti numarul de linii: ";
+	//cin >> linii;
+	//cout << "Introduceti numarul de coloane: ";
+	//cin >> coloane;
+	//Cereala** cMatrice = new Cereala * [linii];
+	//for (int i = 0; i < linii; i++) {
+	//	cMatrice[i] = new Cereala[coloane];
+	//}
+	//for (int i = 0; i < linii; i++) {
+	//	for (int j = 0; j < coloane; j++) {
+	//		cout << "Cereala" << i+1 << j+1 << " este: ";
+	//		cin >> cMatrice[i][j];
+	//	}
+	//}
+	//cout << endl;
+	//for (int i = 0; i < linii; i++) {
+	//	for (int j = 0; j < coloane; j++) {
+	//		cout << "Obiectul " << (i + 1) << (j + 1) << ":" << endl;
+	//		cout << cMatrice[i][j];
+	//	}
+	//}
+	//cout << endl << endl;
+	//for (int i = 0; i < linii; i++) {
+	//	if (cMatrice[i] != NULL) {
+	//		delete[]cMatrice[i];
+	//	}
+	//}
+	//if (cMatrice != NULL) {
+	//	delete[]cMatrice;
+	//}
 
 
 	//// FAZA 5
@@ -2204,7 +2223,7 @@ void main() {
 	
 	// Operatorul >> si operatorul <<
 	Gradina g4;
-	cin >> g4;
+	//cin >> g4;
 	cout << g4 << endl;
 
 	// Operatorul =
@@ -2396,7 +2415,7 @@ void main() {
 
 
 	// Operator>>
-	cin >> lR1;
+	//cin >> lR1;
 	cout << lR1;
 
 	// Scriere in fisier binar 
@@ -2425,11 +2444,11 @@ void main() {
 	if (numeC10 != NULL) {
 		delete[]numeC10;
 	}
-
+	
 	planta[2] = new CerealaDietetica();
 
 	planta[3] = new Cereala();
-
+	
 	char* numeC11 = new char[strlen("Ovaz") + 1];
 	strcpy_s(numeC11, strlen("Ovaz") + 1, "Ovaz");
 	char* continent3 = new char[strlen("Europa") + 1];
@@ -2445,7 +2464,7 @@ void main() {
 	}
 
 	planta[5] = new CerealaDietetica();
-
+	
 	char* numeC12;
 	numeC12 = new char[strlen("Secara") + 1];
 	strcpy_s(numeC12, strlen("Secara") + 1, "Secara");
@@ -2494,6 +2513,7 @@ void main() {
 		legume5[i + 1] = new LegumaRadacinoasa(200, (char*)"Ridiche", "anuala", 0, 6.2, 10, (char*)"primavara", "rosie", 3, 6);
 	}
 	// Late binding in interiorul constructorului
+	// Am facut operatorul = virtual in clasa de baza, abstracta
 	Gradina g8(300, "Daniel Pop", 8, 9, 10, tipLeguma5, legume5);
 	cout << g8 << endl;
 	if (tipLeguma5) {
@@ -2507,4 +2527,5 @@ void main() {
 		}
 		delete[]legume5;
 	}
+	
 }
